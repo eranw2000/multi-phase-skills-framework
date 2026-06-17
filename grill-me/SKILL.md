@@ -1,0 +1,94 @@
+---
+name: grill-me
+description: Interview the user relentlessly about a plan, design, or document, walking each branch of the decision tree and resolving dependencies between decisions one at a time, until every weak spot is surfaced and either fixed or explicitly accepted and shared understanding is reached. Asks one question at a time, gives a recommended answer for each, and explores the codebase to answer questions it can rather than asking. Accepts an optional file path as argument (e.g., "/grill-me REQUIREMENTS.md") to target a specific document; otherwise grills whatever plan is in the current conversation. Use when the user wants their plan challenged or stress-tested, wants to get grilled on their design, says "grill me", "stress-test this", "poke holes in", or wants a reviewer's pass before committing to a direction. Adversarial but constructive.
+argument-hint: "[optional path to a doc to grill, e.g. REQUIREMENTS.md]"
+---
+
+# Grill Me
+
+<!-- Based on the grill-me skill by Matt Pocock (https://github.com/mattpocock). -->
+
+Interview the user relentlessly about every aspect of a plan, design, or document until you reach a shared understanding. Surface every objection a careful reviewer would raise. Walk down each branch of the decision tree, resolving the dependencies between decisions one by one. Drive each to a resolution: either the design holds (record why) or it changes (update accordingly). Do not stop until every branch is resolved.
+
+## Input
+
+- If the user passed a path as an argument (e.g., `/grill-me REQUIREMENTS.md`, `/grill-me docs/proposal.md`, `/grill-me openspec/changes/add-auth/design.md`), read that file first. That file is the subject of the grilling.
+- If the argument is a URL, fetch it and use the content as the subject.
+- If no argument is given, the subject is whatever plan or design is in the current conversation.
+
+State clearly at the start which subject you are grilling.
+
+## Process
+
+### 1. Absorb the subject
+
+Read it fully. Build a list of every:
+- Claim or assertion
+- Assumption (stated or implicit)
+- Decision (with or without alternatives noted)
+- Constraint
+- Unstated implication
+
+### 2. Generate the strongest objections
+
+For each item above, ask what the most rigorous reviewer would object to. Categories:
+- Hidden assumptions
+- Edge cases not addressed (empty, very large, concurrent, time-zoned, locale-varied, network-partitioned)
+- Missing failure paths and recovery behavior
+- Constraints that conflict with stated goals
+- Non-functional gaps: performance, security, observability, cost, accessibility
+- Coupling that makes the design fragile or hard to change
+- Decisions made without alternatives considered
+- Vocabulary used inconsistently
+- Open questions left as "we will figure it out later"
+
+### 3. Walk the tree, one question at a time
+
+Treat the objections as a decision tree. Order them by dependency: a decision that other decisions hang on gets resolved before the ones that depend on it. Do not jump around the tree; resolve the dependencies between decisions one by one.
+
+**Ask one question at a time.** Present the single strongest objection in the most fragile branch, then stop and wait for the answer. Do not batch questions or dump a numbered list. The interview is a back-and-forth, not a questionnaire.
+
+**For every question, provide your recommended answer.** State the objection, the consequence, and then your own recommendation with its reasoning. The user reacts to a concrete proposal instead of starting from a blank page. Recommend, do not impose: the user makes the call.
+
+**If a question can be answered by exploring the codebase, explore the codebase instead of asking.** Before putting a question to the user, check whether the answer already exists in the code, config, tests, or docs. If it does, go read it and resolve the branch yourself, then report what you found. Only escalate to the user the questions that genuinely need their judgment or knowledge that is not in the repo.
+
+Resolve each branch one of three ways:
+- The design holds: record the reasoning so the next reader does not have to re-derive it.
+- The design changes: update the subject document accordingly.
+- The risk is accepted as-is: mark it explicitly as an accepted risk with a one-line justification.
+
+Then move to the next branch. Do not stop early because "most" branches are done. Keep going until shared understanding is reached on every branch. The unaddressed ones are exactly where the bugs live.
+
+### 4. Anchor every objection
+
+Each objection must have a concrete consequence: "if X happens, Y breaks". Abstract concerns ("this feels wrong") are nits and go at the end. Do not soften. Do not invent objections to seem thorough.
+
+### 5. Wrap up
+
+Summarize:
+- What changed in the subject
+- What was accepted as-is, with the justification
+- What new open questions emerged
+- Recommended next step (revise the doc further, hand off to architect, abandon the approach, etc.)
+
+## Output
+
+- **If the subject was a file**: produce an updated version of the file reflecting resolutions. Save it. Append an "Open Questions" section if any remain. List accepted risks in their own section.
+- **If the subject was an in-conversation plan**: produce a summary message with resolutions, accepted risks, and open questions.
+
+## Stance
+
+- Adversarial but constructive. The goal is to make the design stronger, not to be right.
+- An interview, not an interrogation dump. One question at a time; wait for the answer before the next.
+- Resolve decisions in dependency order, walking the tree one branch at a time.
+- Recommend an answer for every question, with reasoning. Recommend, do not impose; the user makes the call.
+- Answer from the codebase whatever the codebase can answer. Only ask the user what the repo cannot tell you.
+- Anchor in consequences, not abstract concern.
+- Do not redesign on behalf of the user. Surface the issue, recommend a fix, let the user choose.
+- Do not stop until every branch is resolved, changed, or accepted-with-justification and you share an understanding of the whole plan.
+
+## Guardrails
+
+- Do not invent objections. Each must have a concrete consequence.
+- Do not write production code in this skill. If the user wants to implement a fix, exit to TDD or Developer.
+- Do not silently rewrite the user's design. Propose, get agreement, then update.
