@@ -14,7 +14,7 @@ The canonical file shape, the five buckets, the link conventions, and the auto-s
 
 ## Step 1 — Resolve the current project
 
-Determine which project this is, in order (same algorithm `project-status` and `save-context` use):
+Determine which project this is, in order (same algorithm `save-context` uses):
 1. If cwd is inside `~/.claude/projects/<X>/`: project = `<X>`.
 2. If cwd is inside a git repo (`REPO_ROOT=$(git rev-parse --show-toplevel)`): take the repo basename, then match it against `~/.claude/projects/` by NAME — the folder is sometimes prefixed (e.g. `Python-Project-<base>`) and does NOT always equal the repo name. Run `find ~/.claude/projects -maxdepth 1 -type d \( -name '<base>' -o -name 'Python-Project-<base>' \)`. Never string-build the path and assume it exists.
 3. If cwd is a dash-prefixed leftover folder: use the trailing `<Name>` segment.
@@ -41,7 +41,7 @@ Match `<text>` against existing items by substring, case-insensitive. If it matc
 
 ## Step 3 — Edit the per-project TODO.md
 
-Apply the mutation using the format in `todo-format.md`: one line per item, memory pointer not detail, strike-don't-delete on completion. The file content is subject to the global AI-signals rule (no em dashes, no AI-typical vocabulary) and the no-box-drawing-characters rule.
+Apply the mutation using the format in `todo-format.md`: one line per item, memory pointer not detail, strike-don't-delete on completion. The file content follows plain-prose writing (no em dashes, no AI-typical vocabulary) and uses no Unicode box-drawing characters.
 
 **Preserve a file's existing structure.** Some files are hand-curated and use different bucket labels (e.g. "Parked / contingent") or extra buckets ("Backlog", "Future / discussed", a ">>> NEXT SESSION" header). Edit items inside whatever structure is already there. Never rename, reorder, merge, or drop an existing file's buckets to match the canonical template, and never restyle its header or footer. The canonical 5-bucket template applies only when CREATING a new file. For `add` to a bucket that doesn't exist in that file, use the closest existing bucket (e.g. "Parked" → "Parked / contingent") rather than inventing the canonical one alongside it.
 

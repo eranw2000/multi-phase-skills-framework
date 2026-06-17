@@ -64,4 +64,4 @@ Keep it scannable and short, one screen if possible:
 4. **Open, not in TODO**: uncaptured items with source tags, or "nothing uncaptured".
 5. A closing line: if Part 3 found uncaptured items, offer to add them to `TODO.md` via the `todo` skill (ask first; do not add unprompted). Otherwise suggest the single most sensible next action based on what you found.
 
-Do not pad the briefing with restated CLAUDE.md detail; link or point rather than copy. Follow the global writing rules (no em dashes in your own prose, no box-drawing characters in any table).
+Do not pad the briefing with restated CLAUDE.md detail; link or point rather than copy. Follow plain-prose conventions (no em dashes in your own prose, no box-drawing characters in any table).
