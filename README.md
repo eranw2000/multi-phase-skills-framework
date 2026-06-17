@@ -50,3 +50,7 @@ These skills reference a few things this framework does not include. None are re
 ## Credits
 
 Several skills here are based on Matt Pocock's open-source skills set (https://github.com/mattpocock/skills): `tdd`, `prd-to-issues` (his `to-issues`), and `grill-me`. To install his full upstream set and its per-repo config, run `/setup-matt-pocock-skills` from that repo. `analyst` and `architect` are original to this framework, they add the explicit requirements and design phases his set does not include.
+
+## License
+
+MIT. See [LICENSE](LICENSE) and [NOTICE](NOTICE). The skills derived from Matt Pocock's set are used under its MIT License, with his copyright retained.

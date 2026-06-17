@@ -1,0 +1,15 @@
+multi-phase-skills-framework
+Copyright (c) 2026 Eran Wyler
+
+This project includes skills derived from the Matt Pocock skills set
+(https://github.com/mattpocock/skills), licensed under the MIT License,
+Copyright (c) 2026 Matt Pocock.
+
+Skills in this repository derived from that work (adapted, not verbatim):
+- tdd            (from his "tdd")
+- prd-to-issues  (from his "to-issues")
+- grill-me       (from his "grill-me")
+
+The analyst and architect skills, and the multi-phase chain wiring, are
+original to this framework. The MIT License in LICENSE applies to both the
+original and the derived portions.
