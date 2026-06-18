@@ -16,12 +16,15 @@ Review the entire conversation and persist all valuable context for future sessi
 - If no project CLAUDE.md exists yet, create one with a clear structure
 
 ### 2. Update the project CLAUDE.md
-Read the current project CLAUDE.md, then update it with anything new from this conversation:
+Read the current project CLAUDE.md, then update it with anything new from this conversation.
+
+As you scan, ask: what did I have to figure out this session that wasn't in CLAUDE.md and cost me time? Capture that first — those are the highest-value additions for a future cold start.
 
 - **Decisions made** — design choices, architectural decisions, trade-offs discussed with the user
 - **Features implemented** — what was built, how it works, key implementation details
 - **Bugs fixed** — what went wrong, root cause, how it was resolved
 - **Gotchas discovered** — non-obvious behavior, edge cases, things that broke unexpectedly
+- **Operational commands & environment** — build / test / run / deploy commands, env setup, venv or Docker quirks you had to discover this session (the things you'd want already documented if you cold-started the project tomorrow)
 - **Configuration changes** — new IDs, endpoints, env vars, column names, API details
 - **Status updates** — mark "Planned" items as implemented, update version numbers
 - **Lessons learned** — patterns that worked, patterns that didn't, things to avoid next time
