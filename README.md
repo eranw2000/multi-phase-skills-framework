@@ -14,6 +14,7 @@ The skills are designed to run in this order, but each is usable on its own.
 
 Supporting skills used across the chain:
 
+- **write-a-prd** — lightweight single-feature alternative to the `analyst` then `architect` pass: one interview, one PRD, filed as one issue. Based on the Matt Pocock skills set.
 - **grill-me** — adversarial interview to stress-test a plan, design, or doc before committing to it. Based on the grill-me skill by Matt Pocock.
 - **init-project** — seed a project `CLAUDE.md` for a data/automation project from its description and files.
 - **todo** — persistent per-project `TODO.md` with a cross-project index. Other skills hand deferred work to it.
@@ -39,7 +40,6 @@ These skills reference a few things this framework does not include. None are re
 
 - **Review and pull-request / checkpoint step after `tdd`.** The framework deliberately does not prescribe a review or PR tool. When tests are green, `tdd` tells you to hand the branch off for review and open a PR per your team's process. Plug in whatever you use (a code-review skill, your CI, a manual review).
 - **OpenSpec (optional, `architect` Path A).** `architect` defaults to slicing straight into issues via `prd-to-issues` (Path B). It can instead scaffold an OpenSpec change if your repo already uses OpenSpec, which is a separately installed tool (`npm install -g @fission-ai/openspec`). Skip it unless your team has standardized on it.
-- **A lightweight PRD option.** For a small single-feature spec, `analyst` notes that a short PRD may be enough instead of a full requirements pass. The framework does not bundle a PRD skill; use your own or write the doc directly.
 
 ## Conventions baked in
 
@@ -49,7 +49,7 @@ These skills reference a few things this framework does not include. None are re
 
 ## Credits
 
-Several skills here are based on Matt Pocock's open-source skills set (https://github.com/mattpocock/skills): `tdd`, `prd-to-issues` (his `to-issues`), and `grill-me`. To install his full upstream set and its per-repo config, run `/setup-matt-pocock-skills` from that repo. `analyst` and `architect` are original to this framework, they add the explicit requirements and design phases his set does not include.
+Several skills here are based on Matt Pocock's open-source skills set (https://github.com/mattpocock/skills): `tdd`, `prd-to-issues` (his `to-issues`), `write-a-prd`, and `grill-me`. To install his full upstream set and its per-repo config, run `/setup-matt-pocock-skills` from that repo. `analyst` and `architect` are original to this framework, they add the explicit requirements and design phases his set does not include.
 
 ## License
 
