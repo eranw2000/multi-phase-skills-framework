@@ -1,7 +1,7 @@
 ---
 name: grill-me
-description: Interview the user relentlessly about a plan, design, or document, walking each branch of the decision tree and resolving dependencies between decisions one at a time, until every weak spot is surfaced and either fixed or explicitly accepted and shared understanding is reached. Asks one question at a time, gives a recommended answer for each, and explores the codebase to answer questions it can rather than asking. Accepts an optional file path as argument (e.g., "/grill-me REQUIREMENTS.md") to target a specific document; otherwise grills whatever plan is in the current conversation. Use when the user wants their plan challenged or stress-tested, wants to get grilled on their design, says "grill me", "stress-test this", "poke holes in", or wants a reviewer's pass before committing to a direction. Adversarial but constructive.
-argument-hint: "[optional path to a doc to grill, e.g. REQUIREMENTS.md]"
+description: Interview the user relentlessly about a plan, design, or document, walking each branch of the decision tree and resolving dependencies between decisions one at a time, until every weak spot is surfaced and either fixed or explicitly accepted and shared understanding is reached. Asks one question at a time, gives a recommended answer for each, and explores the codebase to answer questions it can rather than asking. Accepts an optional file path as argument (e.g., "/grill-me BRAINSTORM.md", "/grill-me REQUIREMENTS.md", "/grill-me SPEC.md") to target a specific document; otherwise grills whatever plan is in the current conversation. Reusable across the chain: stress-test a rough idea or BRAINSTORM.md before picking a path (write-a-prd or analyst), then re-run it on REQUIREMENTS.md and SPEC.md before the next step. Use when the user wants their plan challenged or stress-tested, wants to get grilled on their design, says "grill me", "stress-test this", "poke holes in", or wants a reviewer's pass before committing to a direction. Adversarial but constructive.
+argument-hint: "[optional path to a doc to grill, e.g. BRAINSTORM.md, REQUIREMENTS.md, SPEC.md]"
 ---
 
 # Grill Me
@@ -15,6 +15,7 @@ Interview the user relentlessly about every aspect of a plan, design, or documen
 - If the user passed a path as an argument (e.g., `/grill-me REQUIREMENTS.md`, `/grill-me docs/proposal.md`, `/grill-me openspec/changes/add-auth/design.md`), read that file first. That file is the subject of the grilling.
 - If the argument is a URL, fetch it and use the content as the subject.
 - If no argument is given, the subject is whatever plan or design is in the current conversation.
+- The subject can be at any stage: a rough idea or BRAINSTORM.md before you commit to a path (write-a-prd or analyst), or a written REQUIREMENTS.md / SPEC.md before the next phase.
 
 State clearly at the start which subject you are grilling.
 
