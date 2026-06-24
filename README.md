@@ -18,9 +18,10 @@ Supporting skills used across the chain:
 - **grill-me** — adversarial interview to stress-test a plan, design, or doc before committing to it. Based on the grill-me skill by Matt Pocock.
 - **init-project** — seed a project `CLAUDE.md` for a data/automation project from its description and files.
 - **todo** — persistent per-project `TODO.md` with a cross-project index. Other skills hand deferred work to it.
-- **new-session** — start-of-session briefing: open TODO items plus loose ends not yet tracked.
 - **save-context** — end-of-session save into the project `CLAUDE.md` and memory.
 - **close-session** — save-context plus teardown of resources this session started.
+
+A start-of-session briefing is available separately as the `/new-session` command in the companion commands pack; it is not bundled here.
 
 ## Install
 
@@ -32,7 +33,7 @@ cp -R multi-phase-skills-framework/* ~/.claude/skills/
 
 `tdd` and `todo` ship with companion files next to their `SKILL.md` (reference notes and helper scripts); keep each skill's directory intact when you copy it.
 
-The persistence skills (`capture-brainstorming`, `analyst`, `todo`, `new-session`, `save-context`, `close-session`) assume the standard Claude Code layout: a per-project data dir at `~/.claude/projects/<X>/` and a memory index under the dash-encoded home path (e.g. `-Users-jdoe` for `/Users/jdoe`). They derive that path from `$HOME`, so they work on any machine without editing.
+The persistence skills (`capture-brainstorming`, `analyst`, `todo`, `save-context`, `close-session`) assume the standard Claude Code layout: a per-project data dir at `~/.claude/projects/<X>/` and a memory index under the dash-encoded home path (e.g. `-Users-jdoe` for `/Users/jdoe`). They derive that path from `$HOME`, so they work on any machine without editing.
 
 ## Dependencies and companions (not bundled)
 

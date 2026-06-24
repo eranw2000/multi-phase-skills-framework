@@ -45,8 +45,13 @@ If you find yourself short on tokens or attention and have to skip something, sk
 
 ## Process
 
-### 1. Read REQUIREMENTS.md
-End to end. List every requirement ID. Note any open questions. If blockers remain, stop and tell the user to return to the analyst phase.
+### 1. Read REQUIREMENTS.md, and gate on its completeness
+
+Read it end to end. List every requirement ID.
+
+**Precondition (hard gate): REQUIREMENTS.md must be complete before any design work.** Scan for unresolved Open Questions (any OQ-N in section 11 not yet answered) and for unfilled or placeholder content (empty FR/NFR lists, template placeholders still in angle brackets like `<...>`, blank answers, or a missing Product Validation in section 1.1).
+
+If anything is missing, do NOT proceed to design. Stop, list exactly what is missing (by OQ-N and section), and ask the user for the answers. Do not invent them. Once the user answers, record them in REQUIREMENTS.md (or re-run /analyst), then continue. Designing on top of unanswered questions is the failure this gate prevents: the gaps get resolved by architect guesses nobody agreed to.
 
 ### 2. Map the current architecture
 - Brownfield: sketch the relevant subset of the existing system in prose or ASCII. Identify entry points, contracts the new design must respect, data-store and deploy boundaries.
@@ -137,6 +142,16 @@ Every requirement from REQUIREMENTS.md, accounted for. Zero silent drops.
 | C-1 | Out of scope | User confirmed YYYY-MM-DD: <reason> |
 ```
 
+### 4.5 Confirm the user has read SPEC.md (hard gate)
+
+SPEC.md is the contract the developer builds against, so it is not sliced until the user has actually read it, not just been told it exists. After writing SPEC.md:
+
+1. Tell the user where SPEC.md and architecture.drawio are, and give a short summary of the key decisions (D-N) and any open questions.
+2. Ask the user to read SPEC.md in full and confirm it reflects their intent.
+3. Wait for explicit confirmation that they read it. "Go ahead" or silence without reading does not count. If they raise changes, revise SPEC.md and re-confirm.
+
+Do not invoke /prd-to-issues (Path B) or scaffold an OpenSpec change (Path A) until that confirmation is in hand.
+
 ### 5. Hand off to implementation artifacts
 
 Two paths. **Default to Path B (`/prd-to-issues`).** Use Path A (OpenSpec) ONLY when the user explicitly asks for the OpenSpec / `opsx:propose` route. If the repo already standardizes on OpenSpec, you may surface it as an option, but do not switch to it without the user opting in.
@@ -184,12 +199,15 @@ Tell the user:
 - [ ] Open questions are flagged by ID.
 - [ ] `architecture.drawio` exists next to SPEC.md (or marked N/A for pure-CLI / pure-library work with no components to diagram).
 - [ ] Path A: `openspec validate <change-name>` passes. Path B: issues created on the tracker.
-- [ ] User has approved SPEC.md and reviewed the implementation artifacts.
+- [ ] REQUIREMENTS.md was complete before design started (no unresolved OQs or unfilled sections); any gaps were filled by the user, not guessed.
+- [ ] User has read and confirmed SPEC.md (confirmed, not assumed) before any slicing, and reviewed the implementation artifacts.
 
 ## Guardrails
 
 - Do not write application code. Pseudocode in SPEC.md for clarity is fine.
 - Do not silently modify REQUIREMENTS.md. Raise change requests and wait for user approval.
+- Do not start design while REQUIREMENTS.md has unresolved Open Questions or unfilled sections. Stop and ask the user for the missing answers first.
+- Do not slice (Path B) or scaffold (Path A) until the user has confirmed they read SPEC.md.
 - Do not decide alone on non-trivial design choices. Surface options + tradeoffs to the user first.
 - Default to Path B (`/prd-to-issues`). Do not choose Path A (OpenSpec) unless the user explicitly asks for the OpenSpec / `opsx:propose` route.
 - Do not skip OpenSpec validation on Path A. A broken change blocks `/opsx:apply` downstream.
