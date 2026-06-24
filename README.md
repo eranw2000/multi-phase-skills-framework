@@ -46,6 +46,11 @@ These skills reference a few things this framework does not include. None are re
 - **Review and pull-request / checkpoint step after `tdd`.** The framework deliberately does not prescribe a review or PR tool. When tests are green, `tdd` tells you to hand the branch off for review and open a PR per your team's process. Plug in whatever you use (a code-review skill, your CI, a manual review).
 - **OpenSpec (optional, `architect` Path A).** `architect` defaults to slicing straight into issues via `prd-to-issues` (Path B). It can instead scaffold an OpenSpec change if your repo already uses OpenSpec, which is a separately installed tool (`npm install -g @fission-ai/openspec`). Skip it unless your team has standardized on it.
 
+## Docs
+
+- [docs/AUTHORING-GUIDE.md](docs/AUTHORING-GUIDE.md) — how to author and package Claude Code commands, skills, and agents (the method behind this framework, reusable for building your own packs).
+- [docs/framework-flows.png](docs/framework-flows.png) — the phase chain as a diagram (source: `docs/framework-flows.drawio`).
+
 ## Conventions baked in
 
 - Every phase produces one named artifact (`BRAINSTORM.md`, `REQUIREMENTS.md`, `SPEC.md`, issues, code) so the next phase starts warm instead of cold.
