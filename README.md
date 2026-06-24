@@ -28,7 +28,11 @@ A start-of-session briefing is available separately as the `/new-session` comman
 Each subdirectory here is a self-contained skill (a `SKILL.md` plus any helper files). To use them, copy or symlink the skill directories into your `~/.claude/skills/` so Claude Code picks them up:
 
 ```bash
-cp -R multi-phase-skills-framework/* ~/.claude/skills/
+# Copy only the skill directories (those containing a SKILL.md),
+# skipping docs/ and the repo's own README/LICENSE/NOTICE.
+for d in multi-phase-skills-framework/*/; do
+  [ -f "$d/SKILL.md" ] && cp -R "$d" ~/.claude/skills/
+done
 ```
 
 `tdd` and `todo` ship with companion files next to their `SKILL.md` (reference notes and helper scripts); keep each skill's directory intact when you copy it.
