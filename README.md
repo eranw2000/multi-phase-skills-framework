@@ -2,6 +2,10 @@
 
 A set of Claude Code skills that take a piece of work through distinct phases, from a rough idea to tested code, with a clear handoff artifact at each step. Each phase is small and does one thing, so you can start anywhere in the chain and stop when you have what you need.
 
+![The phase chain](docs/framework-flows.png)
+
+Source: [docs/framework-flows.drawio](docs/framework-flows.drawio) (editable in draw.io).
+
 ## The phase chain
 
 The skills are designed to run in this order, but each is usable on its own.
