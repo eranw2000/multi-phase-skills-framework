@@ -1,6 +1,6 @@
 # Multi-Phase Skills Framework
 
-A set of Claude Code skills that take a piece of work through distinct phases, from a rough idea to tested code, with a clear handoff artifact at each step. Each phase is small and does one thing, so you can start anywhere in the chain and stop when you have what you need.
+A set of Claude Code skills that take a piece of work through distinct phases, from a rough idea to tested code, with a clear handoff artifact at each step. Each phase is small and does one thing, so you can start anywhere in the chain and stop when you have what you need. One skill (`plan-gate`) ships with a companion agent and hook; everything else is a plain skill directory.
 
 ![The phase chain](docs/framework-flows.png)
 
@@ -20,6 +20,7 @@ Supporting skills used across the chain:
 
 - **write-a-prd** — lightweight single-feature alternative to the `analyst` then `architect` pass: one interview, one PRD, filed as one issue. Based on the Matt Pocock skills set.
 - **grill-me** — adversarial interview to stress-test a plan, design, or doc before committing to it. Based on the grill-me skill by Matt Pocock.
+- **plan-gate** — pre-execution checkpoint on an approved plan (for example one you just approved in Claude Code's plan mode): surface every weak spot and drive each one to fixed or explicitly accepted with the user, one at a time, before any code is written. Spawns the bundled `plan-auditor` agent for the read-only audit; an optional hook fires the gate automatically the moment you leave plan mode. Use `grill-me` to stress-test an early idea; `plan-gate` is for a plan that is already approved.
 - **init-project** — seed a project `CLAUDE.md` for a data/automation project from its description and files.
 - **todo** — persistent per-project `TODO.md` with a cross-project index. Other skills hand deferred work to it.
 - **save-context** — end-of-session save into the project `CLAUDE.md` and memory.
@@ -40,6 +41,39 @@ done
 ```
 
 `tdd` and `todo` ship with companion files next to their `SKILL.md` (reference notes and helper scripts); keep each skill's directory intact when you copy it.
+
+### plan-gate companions (agent + hook)
+
+`plan-gate` is a three-part system. The skill directory installs like the others; its two companions live outside it:
+
+```bash
+# The plan-auditor agent (plan-gate spawns it for the read-only plan audit)
+mkdir -p ~/.claude/agents ~/.claude/hooks
+cp multi-phase-skills-framework/agents/plan-auditor.md ~/.claude/agents/
+
+# Optional: the hook that reminds Claude to run the gate whenever a plan is approved
+cp multi-phase-skills-framework/hooks/plan-gate-reminder.sh ~/.claude/hooks/
+chmod +x ~/.claude/hooks/plan-gate-reminder.sh
+```
+
+To wire the hook, add this entry to `~/.claude/settings.json` under `hooks` (merge with any existing `PostToolUse` list):
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          { "type": "command", "command": "$HOME/.claude/hooks/plan-gate-reminder.sh" }
+        ]
+      }
+    ]
+  }
+}
+```
+
+The hook is optional and non-blocking: without it, `plan-gate` still runs whenever you ask for it ("gate this plan"); with it, Claude is reminded to run the gate the moment a plan is approved, before the first change is made. Without the agent, the skill falls back to doing the audit inline, so install the agent to keep the heavy plan-vs-codebase reading out of your main context.
 
 The persistence skills (`capture-brainstorming`, `analyst`, `todo`, `save-context`, `close-session`) assume the standard Claude Code layout: a per-project data dir at `~/.claude/projects/<X>/` and a memory index under the dash-encoded home path (e.g. `-Users-jdoe` for `/Users/jdoe`). They derive that path from `$HOME`, so they work on any machine without editing.
 
@@ -63,7 +97,7 @@ These skills reference a few things this framework does not include. None are re
 
 ## Credits
 
-Several skills here are based on Matt Pocock's open-source skills set (https://github.com/mattpocock/skills): `tdd`, `prd-to-issues` (his `to-issues`), `write-a-prd`, and `grill-me`. To install his full upstream set and its per-repo config, run `/setup-matt-pocock-skills` from that repo. `analyst` and `architect` are original to this framework, they add the explicit requirements and design phases his set does not include.
+Several skills here are based on Matt Pocock's open-source skills set (https://github.com/mattpocock/skills): `tdd`, `prd-to-issues` (his `to-issues`), `write-a-prd`, and `grill-me`. To install his full upstream set and its per-repo config, run `/setup-matt-pocock-skills` from that repo. `analyst` and `architect` are original to this framework, they add the explicit requirements and design phases his set does not include. The `plan-gate` system (skill, `plan-auditor` agent, and reminder hook) is also original.
 
 ## License
 
