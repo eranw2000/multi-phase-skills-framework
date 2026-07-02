@@ -7,7 +7,7 @@
 
         <mxCell id="title" value="multi-phase-skills-framework : idea to tested code, one phase at a time" style="text;html=1;fontSize=20;fontStyle=1;fontColor=#0050b3;align=left;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="40" y="20" width="1100" height="36" as="geometry"/></mxCell>
 
-        <mxCell id="legend" value="Legend&#10;• green = start / finish&#10;• blue = phase skill&#10;• orange = the phase's handoff artifact&#10;• gray dashed = stress-test loop (grill-me)&#10;Each phase produces one named artifact, so the next phase starts warm." style="rounded=0;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=0;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;whiteSpace=wrap;html=1;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="40" y="70" width="470" height="130" as="geometry"/></mxCell>
+        <mxCell id="legend" value="Legend&#10;• green = start / finish&#10;• blue = phase skill&#10;• orange = the phase's handoff artifact&#10;• purple dashed = checkpoints (grill-me, plan-gate)&#10;Each phase produces one named artifact, so the next phase starts warm." style="rounded=0;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=0;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;whiteSpace=wrap;html=1;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="40" y="70" width="470" height="130" as="geometry"/></mxCell>
 
         <!-- start -->
         <mxCell id="start" value="a rough idea" style="ellipse;fillColor=#d5e8d4;strokeColor=#82b366;html=1;whiteSpace=wrap;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="250" width="150" height="70" as="geometry"/></mxCell>
@@ -31,6 +31,9 @@
         <!-- grill-me loop -->
         <mxCell id="grill" value="grill-me : stress-test any artifact before committing to it" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="510" y="500" width="520" height="50" as="geometry"/></mxCell>
 
+        <!-- plan-gate checkpoint -->
+        <mxCell id="gate" value="plan-gate : gate an approved plan before execution (plan-auditor agent + optional hook)" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="1070" y="500" width="520" height="50" as="geometry"/></mxCell>
+
         <!-- supporting band -->
         <mxCell id="band" value="Supporting skills:  write-a-prd (single-feature shortcut to analyst + architect)  ·  init-project  ·  todo  ·  save-context  ·  close-session" style="rounded=0;fillColor=#eeeeee;strokeColor=#999999;html=1;whiteSpace=wrap;fontStyle=2;dashed=1;verticalAlign=middle;align=center;" vertex="1" parent="1"><mxGeometry x="40" y="570" width="1550" height="50" as="geometry"/></mxCell>
 
@@ -48,6 +51,8 @@
         <mxCell id="d5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#82b366;strokeWidth=2;html=1;" edge="1" parent="1" source="p5" target="done"><mxGeometry relative="1" as="geometry"/></mxCell>
         <!-- grill-me dashed to the three artifacts -->
         <mxCell id="gl" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;startArrow=classic;strokeColor=#9673a6;strokeWidth=2;dashed=1;html=1;" edge="1" parent="1" source="grill" target="a2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- plan-gate dashed into tdd -->
+        <mxCell id="ge" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=2;dashed=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="gate" target="p5"><mxGeometry relative="1" as="geometry"/></mxCell>
       </root>
     </mxGraphModel>
   </diagram>
