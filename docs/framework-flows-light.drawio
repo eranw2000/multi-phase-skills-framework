@@ -1,0 +1,46 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram name="light-path" id="mplight">
+    <mxGraphModel dx="1400" dy="800" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1440" pageHeight="640" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="multi-phase-skills-framework : the light path, one bounded feature via write-a-prd" style="text;html=1;fontSize=20;fontStyle=1;fontColor=#0050b3;align=left;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="40" y="20" width="1360" height="36" as="geometry"/></mxCell>
+
+        <mxCell id="legend" value="Legend&#10;• green = start / finish&#10;• blue = phase skill&#10;• orange = the handoff artifact (one GitHub issue)&#10;• purple = gate / checkpoint (plan-gate in-flow · grill-me on the PRD)&#10;write-a-prd collapses analyst + architect + prd-to-issues into one step." style="rounded=0;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=0;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;whiteSpace=wrap;html=1;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="40" y="70" width="560" height="130" as="geometry"/></mxCell>
+
+        <mxCell id="whenbox" value="When to use the light path&#10;• one small, well-bounded feature&#10;• the need is already validated&#10;• no numbered FR / NFR IDs needed for sign-off&#10;Multi-feature scope, unclear problems, or compliance sign-off → use the full analyst → architect chain instead." style="rounded=0;fillColor=#fff7e6;strokeColor=#d79b00;fontStyle=0;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;whiteSpace=wrap;html=1;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="640" y="70" width="760" height="130" as="geometry"/></mxCell>
+
+        <!-- start -->
+        <mxCell id="start" value="a single,&#10;well-bounded feature" style="ellipse;fillColor=#d5e8d4;strokeColor=#82b366;html=1;whiteSpace=wrap;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="250" width="190" height="70" as="geometry"/></mxCell>
+
+        <!-- write-a-prd phase -->
+        <mxCell id="p1" value="write-a-prd&#10;interview + explore the codebase + deep-module design" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;html=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="290" y="250" width="290" height="70" as="geometry"/></mxCell>
+        <mxCell id="a1" value="PRD filed as one GitHub issue&#10;(ready to implement)" style="shape=document;fillColor=#ffe6cc;strokeColor=#d79b00;html=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="290" y="380" width="290" height="60" as="geometry"/></mxCell>
+
+        <!-- plan-gate inline -->
+        <mxCell id="pg" value="plan-gate&#10;gate the approved plan before execution" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="640" y="250" width="240" height="70" as="geometry"/></mxCell>
+        <mxCell id="pgn" value="plan-auditor agent + ExitPlanMode hook&#10;every weak spot Fixed or Accepted" style="rounded=1;fillColor=#f3eefb;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=2;dashed=1;" vertex="1" parent="1"><mxGeometry x="640" y="380" width="240" height="60" as="geometry"/></mxCell>
+
+        <!-- tdd -->
+        <mxCell id="p2" value="tdd&#10;red-green-refactor per slice" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;html=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="940" y="250" width="240" height="70" as="geometry"/></mxCell>
+        <mxCell id="done" value="tested code" style="ellipse;fillColor=#d5e8d4;strokeColor=#82b366;html=1;whiteSpace=wrap;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1240" y="250" width="160" height="70" as="geometry"/></mxCell>
+
+        <!-- grill-me -->
+        <mxCell id="grill" value="grill-me : stress-test the PRD before committing to it" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="290" y="500" width="450" height="50" as="geometry"/></mxCell>
+
+        <!-- supporting band -->
+        <mxCell id="band" value="Supporting skills:  init-project  ·  todo  ·  save-context  ·  close-session" style="rounded=0;fillColor=#eeeeee;strokeColor=#999999;html=1;whiteSpace=wrap;fontStyle=2;dashed=1;verticalAlign=middle;align=center;" vertex="1" parent="1"><mxGeometry x="40" y="570" width="1360" height="50" as="geometry"/></mxCell>
+
+        <!-- edges -->
+        <mxCell id="s0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#82b366;strokeWidth=2;html=1;" edge="1" parent="1" source="start" target="p1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="c1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=3;html=1;" edge="1" parent="1" source="p1" target="pg"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="c2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=3;html=1;" edge="1" parent="1" source="pg" target="p2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="d1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#d79b00;strokeWidth=2;html=1;" edge="1" parent="1" source="p1" target="a1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="dpg" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=2;dashed=1;html=1;" edge="1" parent="1" source="pg" target="pgn"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="d5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#82b366;strokeWidth=2;html=1;" edge="1" parent="1" source="p2" target="done"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="gl" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;startArrow=classic;strokeColor=#9673a6;strokeWidth=2;dashed=1;html=1;" edge="1" parent="1" source="grill" target="a1"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
