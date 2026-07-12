@@ -1,7 +1,7 @@
 ---
 model: fable
 name: grill-me
-description: Interview the user relentlessly about a plan, design, or document, walking each branch of the decision tree and resolving dependencies between decisions one at a time, until every weak spot is surfaced and either fixed or explicitly accepted and shared understanding is reached. Asks one question at a time, gives a recommended answer for each, and explores the codebase to answer questions it can rather than asking. Accepts an optional file path as argument (e.g., "/grill-me BRAINSTORM.md", "/grill-me REQUIREMENTS.md", "/grill-me SPEC.md") to target a specific document; otherwise grills whatever plan is in the current conversation. Reusable across the chain: stress-test a rough idea or BRAINSTORM.md before picking a path (write-a-prd or analyst), then re-run it on REQUIREMENTS.md and SPEC.md before the next step. Use when the user wants their plan challenged or stress-tested, wants to get grilled on their design, says "grill me", "stress-test this", "poke holes in", or wants a reviewer's pass before committing to a direction. Adversarial but constructive.
+description: Interview the user relentlessly about a plan, design, or document, walking each branch of the decision tree and resolving dependencies between decisions one at a time, until every weak spot is surfaced and either fixed or explicitly accepted and shared understanding is reached. Asks one question at a time, gives a recommended answer for each, and explores the codebase to answer questions it can rather than asking. Accepts an optional file path as argument (e.g., "/grill-me BRAINSTORM.md", "/grill-me REQUIREMENTS.md", "/grill-me SPEC.md") to target a specific document; otherwise grills whatever plan is in the current conversation. Reusable across the chain: stress-test a rough idea or BRAINSTORM.md before picking a path (write-a-prd or analyst), then re-run it on REQUIREMENTS.md and SPEC.md before the next step. Use when the user wants their plan challenged or stress-tested, wants to get grilled on their design, says "grill me", "stress-test this", "poke holes in", or wants a reviewer's pass before committing to a direction. In a repo that already has a CONTEXT.md glossary or a docs/adr/ directory (or when the user asks for the paper trail), also maintains the docs trail: checks the subject's vocabulary against the glossary, records resolved terms, and offers ADRs for one-way decisions. Adversarial but constructive.
 argument-hint: "[optional path to a doc to grill, e.g. BRAINSTORM.md, REQUIREMENTS.md, SPEC.md]"
 ---
 
@@ -72,6 +72,17 @@ Summarize:
 - What was accepted as-is, with the justification
 - What new open questions emerged
 - Recommended next step (revise the doc further, hand off to architect, abandon the approach, etc.)
+
+## Docs trail (optional)
+
+Active only when the repo already has a `CONTEXT.md` glossary or a `docs/adr/` directory, or when the user explicitly asks for the paper trail. Otherwise skip this section entirely; the grilling behaves exactly as described above. This is a set of inline writes, never an invocation of another skill.
+
+When active:
+
+- **Check vocabulary against the glossary (during step 2).** Read `CONTEXT.md` (or the relevant context's copy when a `CONTEXT-MAP.md` marks a multi-context repo). A term in the subject that conflicts with a glossary definition is an objection like any other: raise it as its own branch ("the glossary defines X as ..., this doc uses it as ...").
+- **Write resolved terms inline (during step 3).** When a branch resolution settles a term, update `CONTEXT.md` at that moment, not at wrap-up; an interrupted session keeps what it settled. Create the file lazily on the first resolved term. `CONTEXT.md` is vocabulary only: the canonical term, a one-or-two-sentence definition of what it IS, and an `_Avoid_` list of rejected synonyms. Never spec fragments, never implementation notes. Format: [CONTEXT-FORMAT.md](CONTEXT-FORMAT.md).
+- **Offer ADRs sparingly (during step 3).** When a resolution is (1) hard to reverse AND (2) surprising without context AND (3) the result of a real trade-off, offer to record it under `docs/adr/`. If any of the three is missing, skip the ADR. Most sessions produce few or no ADRs; a sharper glossary and zero ADRs is a normal outcome. Format: [ADR-FORMAT.md](ADR-FORMAT.md).
+- **Report in the wrap-up (step 5).** List glossary terms added or changed and ADRs written alongside the other outcomes.
 
 ## Output
 
