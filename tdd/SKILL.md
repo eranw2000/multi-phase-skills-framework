@@ -1,4 +1,5 @@
 ---
+model: opus
 name: tdd
 description: Test-driven development with the red-green-refactor loop, using vertical tracer-bullet slices (one failing test, then the minimal code to pass, repeat). Use this whenever you are about to build a non-trivial feature or fix a bug and want it covered by tests, even if the user does not say "TDD" by name, as well as when they mention TDD, "red-green-refactor", "test-first", or writing a failing test before the code. For a bug fix, the first red test reproduces the bug. Not for adding tests to already-finished code with no build loop, and not for merely running or reviewing an existing test suite (use your test-runner or a code-review pass for those).
 ---

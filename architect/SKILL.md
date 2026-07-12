@@ -1,4 +1,5 @@
 ---
+model: fable
 name: architect
 description: Act as a Solution Architect. Read REQUIREMENTS.md, engage the user on design decisions, write SPEC.md, then slice into tracer-bullet issues on the project tracker via /prd-to-issues (the default), or scaffold an OpenSpec change via /opsx:propose only when the user explicitly asks for the OpenSpec route, so the developer can implement task by task. Use after the analyst skill (or after REQUIREMENTS.md exists by any other means) when the project needs an explicit design phase before slicing. Output captures the HOW (modules, interfaces, NFR strategy, data flow). Not for problem-space gathering (use analyst).
 ---

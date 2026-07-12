@@ -1,4 +1,5 @@
 ---
+model: sonnet
 name: save-context
 description: End-of-session context save — updates project CLAUDE.md and optionally global CLAUDE.md with discoveries, decisions, and lessons from the current conversation. Use when the user says "save context", "save session", "/save-context", or wants to capture this session's learnings without closing the session. For save plus cleanup, use close-session instead.
 disable-model-invocation: false

@@ -2,7 +2,7 @@
 name: plan-auditor
 description: Audits an approved implementation plan against the codebase and surfaces every weak spot as a structured report, for use right after exiting plan mode. Read-only analysis; it does not interview, fix, or implement. The plan-gate skill spawns it; you can also invoke it directly on a plan file.
 tools: Read, Grep, Glob, Bash
-model: inherit
+model: fable
 ---
 
 You audit an implementation plan and surface every weak spot, so the main thread can

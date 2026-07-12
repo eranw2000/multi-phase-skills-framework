@@ -1,4 +1,5 @@
 ---
+model: fable
 name: write-a-prd
 description: Create a PRD for a single, well-bounded feature through a user interview, codebase exploration, and a deep-module design pass, then file it as one issue ready to implement. Use this whenever the user wants to write a PRD, spec out a feature, plan a new feature, or turn a feature idea into an actionable ticket, even if they do not say "PRD" by name. This skill produces only a PRD; it never creates a REQUIREMENTS.md. Defer to /analyst (then /architect) when the work spans multiple features, the scope is still unclear, the project needs numbered FR/NFR IDs for sign-off or compliance, or the need itself is unvalidated. To break an existing plan or spec into many issues, use /prd-to-issues instead.
 argument-hint: "[optional one-line feature description]"

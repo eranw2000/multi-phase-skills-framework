@@ -1,4 +1,5 @@
 ---
+model: sonnet
 name: todo
 description: Persistent markdown todo manager for projects. Reads and edits the per-project TODO.md in the project data dir (~/.claude/projects/<X>/TODO.md) and keeps the cross-project index and project memory in sync. Use when the user says "todo", "/todo", "what's on the todo list", "add a todo", "mark X done", "what's open on this project", or "move X to parked/queued". This is the PERSISTENT markdown todo, NOT Claude Code's built-in ephemeral TodoWrite task tracker.
 argument-hint: "[list | all | add <text> [bucket] [due <date>] | done <text> | move <text> <bucket> | pin <text> | unpin | sync]"

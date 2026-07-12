@@ -1,4 +1,5 @@
 ---
+model: fable
 name: plan-gate
 description: Verify an approved plan before executing it. The moment you leave plan mode (switch to auto or accept mode), surface every weak spot in the plan and drive each one to fixed or explicitly accepted with the user, reaching shared understanding, before any code is written. Use right after a plan is approved (a hook reminds you), or when the user says "gate this plan", "grill the plan before we start", "verify the plan", or wants a shared-understanding check before execution. Not for stress-testing an early idea (use grill-me); this is the pre-execution gate on an already-approved plan.
 disable-model-invocation: false
