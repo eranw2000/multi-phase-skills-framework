@@ -1,4 +1,5 @@
 ---
+model: fable
 name: analyst
 description: Act as a Requirements Analyst. Interview the user, explore the codebase, and produce REQUIREMENTS.md capturing the problem space (WHAT and WHY, not HOW) for handoff to the architect skill. Warm-starts from a BRAINSTORM.md (written by /capture-brainstorming) when one exists, interviewing only the open topics. Use when starting a new project or initiative, when scope is unclear, or when the user says "gather requirements", "act as analyst", "let's spec this", or asks to produce a REQUIREMENTS.md. For a small single-feature spec, prefer write-a-prd; use grill-me to stress-test a plan that already exists instead.
 ---

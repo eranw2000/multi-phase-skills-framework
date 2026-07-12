@@ -1,4 +1,5 @@
 ---
+model: opus
 name: init-project
 description: Initialize a project CLAUDE.md for a data/automation project (a `.claude/projects/<X>/` vault). Seeds from the project's `initial_description.txt` and from a `<project_name>_instruction_file.md` in `~/.claude/instructions/` when present, analyzes the project's files (flow definitions, scripts, CSVs, configs), then plans the doc and gets approval before writing. Use for new data/automation projects (Power Automate, n8n, CSV-driven, research vaults); for a source-code repository, use the built-in `/init` instead.
 disable-model-invocation: true

@@ -1,4 +1,5 @@
 ---
+model: sonnet
 name: close-session
 description: End-of-session save AND cleanup — runs the full save-context workflow (project CLAUDE.md, optional global CLAUDE.md, MEMORY.md files + index), then cleans up the shells, dev servers, and background agents/tasks this session spawned. Does NOT close the Terminal window. Use when the user says "this thread is done", "close this session", "end session", "end of session", "save and close", "wrap up and exit", "we're done, close this", or any variant signaling "save context and tidy up this session". For save-only without cleanup, use /save-context instead.
 disable-model-invocation: false
