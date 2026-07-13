@@ -1,0 +1,62 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram name="safety-rails" id="safetyrails">
+    <mxGraphModel dx="1400" dy="800" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1440" pageHeight="640" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="the safety rails : from an approved plan to a probed production deploy" style="text;html=1;fontSize=20;fontStyle=1;fontColor=#0050b3;align=left;verticalAlign=middle;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="40" y="18" width="1360" height="34" as="geometry"/></mxCell>
+
+        <mxCell id="legend" value="Legend&#10;• green = start / finish&#10;• blue = the one forward step (Claude writes the diff)&#10;• purple = a gate: must pass or be explicitly accepted before the next step&#10;• light purple dashed = what the gate runs / checks&#10;Two gates run as a pair on the same diff, then on the live service." style="rounded=0;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=0;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;" vertex="1" parent="1"><mxGeometry x="40" y="60" width="600" height="150" as="geometry"/></mxCell>
+
+        <mxCell id="prov" value="Where each gate comes from&#10;• plan-gate + plan-auditor  →  multi-phase-skills-framework&#10;• code-reviewer + deploy-guard  →  claude-review-agents&#10;• prod probe (production-smoke)  →  claude-release-workflow&#10;• real-connect gate  →  the kb-smoke pattern (live external-service check)&#10;Every gate reports back without editing your files. You fix, then re-run it." style="rounded=0;fillColor=#e6f7ff;strokeColor=#1890ff;fontStyle=0;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;" vertex="1" parent="1"><mxGeometry x="670" y="60" width="730" height="150" as="geometry"/></mxCell>
+
+        <!-- START: the written plan -->
+        <mxCell id="start" value="an approved,&#10;WRITTEN plan&#10;(plan mode → ExitPlanMode)" style="ellipse;fillColor=#d5e8d4;strokeColor=#82b366;html=1;whiteSpace=wrap;fontStyle=1;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1"><mxGeometry x="30" y="300" width="185" height="82" as="geometry"/></mxCell>
+        <mxCell id="auq" value="open decisions were resolved WITH you via AskUserQuestion&#10;(each fork asked as a multiple-choice with a recommended option). The plan encodes YOUR choices, not Claude's silent defaults" style="rounded=1;fillColor=#eafaf1;strokeColor=#82b366;html=1;whiteSpace=wrap;fontStyle=2;dashed=1;fontFamily=Helvetica;fontSize=11;verticalAlign=top;spacingTop=6;spacingLeft=6;align=left;" vertex="1" parent="1"><mxGeometry x="20" y="430" width="205" height="120" as="geometry"/></mxCell>
+
+        <!-- GATE 1: plan-gate -->
+        <mxCell id="pg" value="plan-gate&#10;guard: plan → code" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=1;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1"><mxGeometry x="255" y="308" width="175" height="66" as="geometry"/></mxCell>
+        <mxCell id="pgn" value="plan-auditor audits the plan vs the codebase · ExitPlanMode hook reminds · every weak spot Fixed or Accepted · reopened decisions go back through AskUserQuestion" style="rounded=1;fillColor=#f3eefb;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=2;dashed=1;fontFamily=Helvetica;fontSize=11;verticalAlign=top;spacingTop=6;spacingLeft=6;align=left;" vertex="1" parent="1"><mxGeometry x="255" y="430" width="175" height="120" as="geometry"/></mxCell>
+
+        <!-- IMPLEMENT -->
+        <mxCell id="impl" value="implement&#10;Claude writes the diff&#10;(tdd optional)" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;html=1;whiteSpace=wrap;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1"><mxGeometry x="470" y="308" width="150" height="66" as="geometry"/></mxCell>
+
+        <!-- GATE 2 pair: code-reviewer + deploy-guard -->
+        <mxCell id="cr" value="code-reviewer&#10;quality + maintainability on the diff" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=1;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1"><mxGeometry x="660" y="230" width="200" height="62" as="geometry"/></mxCell>
+        <mxCell id="dg" value="deploy-guard&#10;secrets / PII · config hygiene · stack-specific traps" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=1;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1"><mxGeometry x="660" y="342" width="200" height="62" as="geometry"/></mxCell>
+        <mxCell id="pairlbl1" value="guard: code → ship&#10;(run in parallel on the diff)" style="text;html=1;fontSize=11;fontStyle=2;fontColor=#9673a6;align=center;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="660" y="300" width="200" height="34" as="geometry"/></mxCell>
+
+        <!-- SHIP -->
+        <mxCell id="ship" value="ship / deploy&#10;(/release)" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;html=1;whiteSpace=wrap;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1"><mxGeometry x="900" y="308" width="120" height="66" as="geometry"/></mxCell>
+
+        <!-- GATE 3 pair: real-connect + prod probe -->
+        <mxCell id="rc" value="real-connect gate&#10;every external service answered FOR REAL: live Anthropic turn · Gemini connect · SMTP login · OAuth counts" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=1;fontFamily=Helvetica;fontSize=11;" vertex="1" parent="1"><mxGeometry x="1060" y="230" width="205" height="62" as="geometry"/></mxCell>
+        <mxCell id="pp" value="prod probe&#10;live commit = pushed HEAD · health + key endpoints · DEBUG-off 404 · no 5xx in logs" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=1;fontFamily=Helvetica;fontSize=11;" vertex="1" parent="1"><mxGeometry x="1060" y="342" width="205" height="62" as="geometry"/></mxCell>
+        <mxCell id="pairlbl2" value="guard: ship → confirmed live&#10;(post-deploy, on the running service)" style="text;html=1;fontSize=11;fontStyle=2;fontColor=#9673a6;align=center;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="1060" y="300" width="205" height="34" as="geometry"/></mxCell>
+
+        <!-- FINISH -->
+        <mxCell id="finish" value="verified live&#10;in production" style="ellipse;fillColor=#d5e8d4;strokeColor=#82b366;html=1;whiteSpace=wrap;fontStyle=1;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1"><mxGeometry x="1300" y="300" width="130" height="82" as="geometry"/></mxCell>
+
+        <!-- return band -->
+        <mxCell id="band" value="Any gate can fail. The agents report back without touching your files; you fix, then re-run that gate. Nothing advances until the gate passes or you explicitly accept the risk." style="rounded=0;fillColor=#eeeeee;strokeColor=#999999;html=1;whiteSpace=wrap;fontStyle=2;dashed=1;verticalAlign=middle;align=center;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1"><mxGeometry x="40" y="575" width="1390" height="46" as="geometry"/></mxCell>
+
+        <!-- edges: spine -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#82b366;strokeWidth=2;html=1;" edge="1" parent="1" source="start" target="pg"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=3;html=1;" edge="1" parent="1" source="pg" target="impl"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3a" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=2;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="impl" target="cr"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3b" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=2;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="impl" target="dg"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4a" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=2;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="cr" target="ship"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4b" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=2;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="dg" target="ship"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5a" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=2;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="ship" target="rc"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5b" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=2;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="ship" target="pp"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6a" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#82b366;strokeWidth=2;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="rc" target="finish"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6b" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#82b366;strokeWidth=2;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="pp" target="finish"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- edges: notes -->
+        <mxCell id="n1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#82b366;strokeWidth=2;dashed=1;html=1;" edge="1" parent="1" source="start" target="auq"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="n2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=2;dashed=1;html=1;" edge="1" parent="1" source="pg" target="pgn"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
