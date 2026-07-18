@@ -90,6 +90,7 @@ Rules:
 - Only enough code to pass current test
 - Don't anticipate future tests
 - Keep tests focused on observable behavior
+- Add tests with Edit/Write, never by shell redirection (`cat >>`, `tee -a`): a shell-appended test can land after a `__main__` runner and silently never run
 
 ### 4. Refactor
 
@@ -111,6 +112,10 @@ After all tests pass, look for [refactor candidates](refactoring.md):
 [ ] Test would survive internal refactor
 [ ] Code is minimal for this test
 [ ] No speculative features added
+[ ] The printed suite total increased by 1 after GREEN (read the number)
+[ ] Gate/guard change: mutation check done (break the guard, exactly this test fails, restore)
+[ ] Negative test: contrast assertion present (gate un-armed gives the opposite outcome)
+[ ] Test sits above any __main__ runner, and is registered if the file uses a hand list
 ```
 
 ## Handoff
