@@ -1,6 +1,6 @@
 # Multi-Phase Skills Framework
 
-A set of Claude Code skills that take a piece of work through distinct phases, from a rough idea to tested code, with a clear handoff artifact at each step. Each phase is small and does one thing, so you can start anywhere in the chain and stop when you have what you need. One skill (`plan-gate`) ships with a companion agent and hook; everything else is a plain skill directory.
+A set of Claude Code skills that take a piece of work through distinct phases, from a rough idea to tested code, with a clear handoff artifact at each step. Each phase is small and does one thing, so you can start anywhere in the chain and stop when you have what you need. One skill (`plan-gate`) ships with a companion agent, hook, and command; everything else is a plain skill directory.
 
 ![The phase chain](docs/framework-flows.png)
 
@@ -21,6 +21,7 @@ Supporting skills used across the chain:
 - **write-a-prd** — lightweight single-feature alternative to the `analyst` then `architect` pass: one interview, one PRD, filed as one issue. Based on the Matt Pocock skills set.
 - **grill-me** — adversarial interview to stress-test a plan, design, or doc before committing to it. Based on the grill-me skill by Matt Pocock.
 - **plan-gate** — pre-execution checkpoint on an approved plan (for example one you just approved in Claude Code's plan mode): surface every weak spot and drive each one to fixed or explicitly accepted with the user, one at a time, before any code is written. Spawns the bundled `plan-auditor` agent for the read-only audit; an optional hook fires the gate automatically the moment you leave plan mode. Use `grill-me` to stress-test an early idea; `plan-gate` is for a plan that is already approved.
+- **`/pause-after-planning`**: optional command for anyone who plans and builds on different models. Run it during a planning session and it arms a stop, so Claude finishes planning and the gate, then hands off and waits for you to switch the model instead of rolling straight into implementation. See [Model routing](#model-routing).
 - **init-project** — seed a project `CLAUDE.md` for a data/automation project from its description and files.
 - **todo** — persistent per-project `TODO.md` with a cross-project index. Other skills hand deferred work to it.
 - **save-context** — end-of-session save into the project `CLAUDE.md` and memory.
@@ -42,18 +43,21 @@ done
 
 `tdd` and `todo` ship with companion files next to their `SKILL.md` (reference notes and helper scripts); keep each skill's directory intact when you copy it.
 
-### plan-gate companions (agent + hook)
+### plan-gate companions (agent, hook, command)
 
-`plan-gate` is a three-part system. The skill directory installs like the others; its two companions live outside it:
+`plan-gate` is a four-part system, and only the first part is required. The skill directory installs like the others; its companions live outside it:
 
 ```bash
 # The plan-auditor agent (plan-gate spawns it for the read-only plan audit)
-mkdir -p ~/.claude/agents ~/.claude/hooks
+mkdir -p ~/.claude/agents ~/.claude/hooks ~/.claude/commands
 cp multi-phase-skills-framework/agents/plan-auditor.md ~/.claude/agents/
 
 # Optional: the hook that reminds Claude to run the gate whenever a plan is approved
 cp multi-phase-skills-framework/hooks/plan-gate-reminder.sh ~/.claude/hooks/
 chmod +x ~/.claude/hooks/plan-gate-reminder.sh
+
+# Optional: the command that stops after the gate so you can switch models
+cp multi-phase-skills-framework/commands/pause-after-planning.md ~/.claude/commands/
 ```
 
 To wire the hook, add this entry to `~/.claude/settings.json` under `hooks` (merge with any existing `PostToolUse` list):
@@ -73,7 +77,7 @@ To wire the hook, add this entry to `~/.claude/settings.json` under `hooks` (mer
 }
 ```
 
-The hook is optional and non-blocking: without it, `plan-gate` still runs whenever you ask for it ("gate this plan"); with it, Claude is reminded to run the gate the moment a plan is approved, before the first change is made. Without the agent, the skill falls back to doing the audit inline, so install the agent to keep the heavy plan-vs-codebase reading out of your main context.
+The hook is optional and non-blocking: without it, `plan-gate` still runs whenever you ask for it ("gate this plan"); with it, Claude is reminded to run the gate the moment a plan is approved, before the first change is made. Without the agent, the skill falls back to doing the audit inline, so install the agent to keep the heavy plan-vs-codebase reading out of your main context. The command is only useful if you plan and build on different models; skip it otherwise.
 
 The persistence skills (`capture-brainstorming`, `analyst`, `todo`, `save-context`, `close-session`) assume the standard Claude Code layout: a per-project data dir at `~/.claude/projects/<X>/` and a memory index under the dash-encoded home path (e.g. `-Users-jdoe` for `/Users/jdoe`). They derive that path from `$HOME`, so they work on any machine without editing.
 
@@ -112,3 +116,12 @@ The skills and the plan-auditor agent in this pack pin a Claude Code model alias
 - `model: sonnet`: routine or mechanical steps
 
 If a pinned model is not available on your plan, or you prefer different routing, edit the `model:` line in the artifact's frontmatter, or delete it to inherit your session model.
+
+### Switching models partway through one piece of work
+
+A pin only lasts the turn that invoked the artifact, so a long implementation session needs an explicit `/model` switch. Two things make that switch land in the right place:
+
+- **The boundary is implementation, not plan approval.** Planning, evidence-gathering, audits, and strategy brainstorming are all analysis and belong on the planning model. The switch to a cheaper model belongs at the first repo or code edit. Approving a plan is not itself the boundary, and a plan whose early phases are research or audit should still run those on the planning model.
+- **`/pause-after-planning` enforces it.** It arms a stop after the gate so the session hands off (gate tally, plan file, resume point) and waits for you to switch, rather than rolling into implementation on whatever model was planning. When the plan has analysis phases after the gate, it stops twice: once to confirm those run on the planning model, again at the first code edit.
+
+That command deliberately carries **no `model:` pin**, unlike every other artifact here. A pin takes effect on the turn that invokes it, which would switch the model in the middle of the planning session the command exists to protect. Leave it unpinned if you audit this pack for routing consistency.
