@@ -1,0 +1,73 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram name="safety-rails-review-round" id="safetyrailsrr">
+    <mxGraphModel dx="1400" dy="800" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="690" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="the safety rails : the review round, one skill and three agents on the same diff" style="text;html=1;fontSize=20;fontStyle=1;fontColor=#0050b3;align=left;verticalAlign=middle;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="40" y="14" width="1420" height="34" as="geometry"/></mxCell>
+
+        <mxCell id="legend" value="Legend&#10;• green = start / finish&#10;• blue = the one forward step (Claude writes the diff)&#10;• purple = a gate: must pass or be explicitly accepted before the next step&#10;• light purple dashed = what the gate runs / checks&#10;The code-to-ship gate is a SKILL (review-round) that launches three agents in parallel." style="rounded=0;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=0;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;" vertex="1" parent="1"><mxGeometry x="40" y="52" width="560" height="140" as="geometry"/></mxCell>
+
+        <mxCell id="prov" value="Where each gate comes from&#10;• plan-gate + plan-auditor  →  multi-phase-skills-framework&#10;• review-round (the loop and the verdict)  →  claude-release-workflow&#10;• code-reviewer + deploy-guard + pr-validator  →  claude-review-agents&#10;• prod probe (production-smoke)  →  claude-release-workflow&#10;• real-connect gate  →  the kb-smoke pattern (live external-service check)&#10;Every gate reports back without editing your files. You fix, then re-run it." style="rounded=0;fillColor=#e6f7ff;strokeColor=#1890ff;fontStyle=0;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;" vertex="1" parent="1"><mxGeometry x="620" y="52" width="840" height="140" as="geometry"/></mxCell>
+
+        <!-- START -->
+        <mxCell id="start" value="an approved,&#10;WRITTEN plan&#10;(plan mode → ExitPlanMode)" style="ellipse;fillColor=#d5e8d4;strokeColor=#82b366;html=1;whiteSpace=wrap;fontStyle=1;fontFamily=Helvetica;fontSize=11;" vertex="1" parent="1"><mxGeometry x="25" y="259" width="175" height="82" as="geometry"/></mxCell>
+        <mxCell id="auq" value="As part of the plan:&#10;• set a clear GOAL, the definition of done the whole chain is verified against&#10;• its open decisions are made WITH you via AskUserQuestion, not guessed" style="rounded=1;fillColor=#eafaf1;strokeColor=#82b366;html=1;whiteSpace=wrap;fontStyle=0;dashed=1;fontFamily=Helvetica;fontSize=11;verticalAlign=top;spacingTop=8;spacingLeft=8;align=left;" vertex="1" parent="1"><mxGeometry x="25" y="450" width="180" height="140" as="geometry"/></mxCell>
+
+        <!-- GATE 1 -->
+        <mxCell id="pg" value="plan-gate&#10;guard: plan → code" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=1;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1"><mxGeometry x="230" y="267" width="150" height="66" as="geometry"/></mxCell>
+        <mxCell id="pgn" value="plan-auditor audits the plan vs the codebase · ExitPlanMode hook reminds · every weak spot Fixed or Accepted" style="rounded=1;fillColor=#f3eefb;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=2;dashed=1;fontFamily=Helvetica;fontSize=11;verticalAlign=top;spacingTop=8;spacingLeft=8;align=left;" vertex="1" parent="1"><mxGeometry x="225" y="450" width="155" height="140" as="geometry"/></mxCell>
+
+        <!-- IMPLEMENT -->
+        <mxCell id="impl" value="implement&#10;Claude writes the diff&#10;(tdd optional)" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;html=1;whiteSpace=wrap;fontFamily=Helvetica;fontSize=11;" vertex="1" parent="1"><mxGeometry x="410" y="267" width="130" height="66" as="geometry"/></mxCell>
+
+        <!-- GATE 2: the review round -->
+        <mxCell id="rr" value="review-round&#10;guard: code → ship&#10;one skill, three agents,&#10;one verdict" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=1;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1"><mxGeometry x="570" y="255" width="155" height="90" as="geometry"/></mxCell>
+
+        <mxCell id="cr" value="code-reviewer&#10;quality + maintainability on the diff" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=1;fontFamily=Helvetica;fontSize=11;" vertex="1" parent="1"><mxGeometry x="750" y="195" width="200" height="62" as="geometry"/></mxCell>
+        <mxCell id="dg" value="deploy-guard&#10;secrets / PII · config hygiene · stack-specific traps" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=1;fontFamily=Helvetica;fontSize=11;" vertex="1" parent="1"><mxGeometry x="750" y="269" width="200" height="62" as="geometry"/></mxCell>
+        <mxCell id="pv" value="pr-validator&#10;RUNS the PR's tests, reports pass / fail (it never fixes them)" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=1;fontFamily=Helvetica;fontSize=11;" vertex="1" parent="1"><mxGeometry x="750" y="343" width="200" height="62" as="geometry"/></mxCell>
+        <mxCell id="parlbl" value="launched in ONE message,&#10;in parallel, on the same reviewed HEAD" style="text;html=1;fontSize=10;fontStyle=2;fontColor=#9673a6;align=center;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="735" y="408" width="230" height="30" as="geometry"/></mxCell>
+
+        <mxCell id="rrn" value="what the round enforces&#10;• adversarial prompts that NAME the 2-3 riskiest spots, and say &quot;do not stop there&quot;&#10;• the new TESTS are audited as adversarially as the source&#10;• every finding REPRODUCED by execution before anything is fixed&#10;• each fix proven by a regression test that fails without it&#10;• pr-checkpoint runs the same round in advisory checkpoint mode, nothing blocks" style="rounded=1;fillColor=#f3eefb;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=0;dashed=1;fontFamily=Helvetica;fontSize=11;verticalAlign=top;spacingTop=8;spacingLeft=8;align=left;" vertex="1" parent="1"><mxGeometry x="400" y="450" width="500" height="140" as="geometry"/></mxCell>
+
+        <!-- SHIP -->
+        <mxCell id="ship" value="ship / deploy&#10;(/release)" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;html=1;whiteSpace=wrap;fontFamily=Helvetica;fontSize=11;" vertex="1" parent="1"><mxGeometry x="985" y="267" width="115" height="66" as="geometry"/></mxCell>
+        <mxCell id="verdict" value="the verdict is the handoff to /release&#10;• the round ends by posting one comment on the PR:&#10;   &quot;Review-round verdict: CLEAN @ [sha]&quot;, or CRITICALS-OPEN&#10;• /release reads that comment and refuses to merge unless it is CLEAN at the CURRENT head&#10;• a verdict the gate cannot parse counts as no verdict, so the marker is the comment's last line" style="rounded=1;fillColor=#f3eefb;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=0;dashed=1;fontFamily=Helvetica;fontSize=11;verticalAlign=top;spacingTop=8;spacingLeft=8;align=left;" vertex="1" parent="1"><mxGeometry x="920" y="450" width="560" height="140" as="geometry"/></mxCell>
+
+        <!-- GATE 3 pair -->
+        <mxCell id="rc" value="real-connect gate&#10;every external service answered FOR REAL: live Anthropic turn · Gemini connect · SMTP login · OAuth counts" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=1;fontFamily=Helvetica;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1135" y="204" width="200" height="66" as="geometry"/></mxCell>
+        <mxCell id="pp" value="prod probe&#10;live commit = pushed HEAD · health + key endpoints · DEBUG-off 404 · no 5xx in logs" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=1;fontFamily=Helvetica;fontSize=10;" vertex="1" parent="1"><mxGeometry x="1135" y="330" width="200" height="66" as="geometry"/></mxCell>
+        <mxCell id="pairlbl2" value="guard: ship → confirmed live&#10;(post-deploy, on the running service)" style="text;html=1;fontSize=10;fontStyle=2;fontColor=#9673a6;align=center;fontFamily=Helvetica;" vertex="1" parent="1"><mxGeometry x="1135" y="276" width="200" height="30" as="geometry"/></mxCell>
+
+        <!-- FINISH -->
+        <mxCell id="finish" value="verified live&#10;in production" style="ellipse;fillColor=#d5e8d4;strokeColor=#82b366;html=1;whiteSpace=wrap;fontStyle=1;fontFamily=Helvetica;fontSize=11;" vertex="1" parent="1"><mxGeometry x="1365" y="259" width="115" height="82" as="geometry"/></mxCell>
+
+        <!-- return band -->
+        <mxCell id="band" value="Any gate can fail. The agents report back without touching your files; you fix, then re-run that gate. Nothing advances until the gate passes or you explicitly accept the risk." style="rounded=0;fillColor=#eeeeee;strokeColor=#999999;html=1;whiteSpace=wrap;fontStyle=2;dashed=1;verticalAlign=middle;align=center;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1"><mxGeometry x="25" y="612" width="1455" height="46" as="geometry"/></mxCell>
+
+        <!-- edges: spine -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#82b366;strokeWidth=2;html=1;" edge="1" parent="1" source="start" target="pg"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=3;html=1;" edge="1" parent="1" source="pg" target="impl"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=3;html=1;" edge="1" parent="1" source="impl" target="rr"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4a" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=2;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="rr" target="cr"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4b" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=2;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="rr" target="dg"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4c" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=2;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="rr" target="pv"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5a" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=2;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="cr" target="ship"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5b" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=2;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="dg" target="ship"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5c" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=2;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="pv" target="ship"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6a" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=2;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ship" target="rc"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6b" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=2;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ship" target="pp"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e7a" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#82b366;strokeWidth=2;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="rc" target="finish"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e7b" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#82b366;strokeWidth=2;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="pp" target="finish"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- edges: notes -->
+        <mxCell id="n1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#82b366;strokeWidth=2;dashed=1;html=1;" edge="1" parent="1" source="start" target="auq"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="n2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=2;dashed=1;html=1;" edge="1" parent="1" source="pg" target="pgn"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="n3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=2;dashed=1;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="rr" target="rrn"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="n4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#9673a6;strokeWidth=2;dashed=1;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="ship" target="verdict"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
