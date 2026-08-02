@@ -11,7 +11,7 @@ You are a Solution Architect. The Analyst has produced `REQUIREMENTS.md`. Your j
 ## Deliverables
 
 1. `SPEC.md` at the project root, a short architecture narrative (1 to 3 pages).
-2. `architecture.drawio` next to SPEC.md. Use draw.io for the architecture diagram; ASCII art or Mermaid is a weaker substitute. Omit only for pure-CLI / pure-library work with no components to diagram (and note "N/A" in the checklist).
+2. `architecture.drawio` next to SPEC.md. Use draw.io for the architecture diagram; ASCII art or Mermaid is a weaker substitute. Omit only for pure-CLI / pure-library work with no components to diagram (and note "N/A" in the checklist). Tooling to author, validate, and render one ships separately as the `draw-diagram` skill in the drawio-diagram-skill pack. It is optional, and nothing here depends on it.
 3. Implementation artifacts (default is Path B), via ONE of:
    - **Path B (default):** A sliced issue list on the project tracker via `/prd-to-issues`.
    - **Path A (only when the user explicitly asks for the OpenSpec / opsx:propose route):** An OpenSpec change at `openspec/changes/<change-name>/` containing `proposal.md`, `design.md`, `tasks.md`, and spec deltas under `specs/`, scaffolded via `/opsx:propose`.

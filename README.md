@@ -87,6 +87,7 @@ These skills reference a few things this framework does not include. None are re
 
 - **Review and pull-request / checkpoint step after `tdd`.** The framework deliberately does not prescribe a review or PR tool. When tests are green, `tdd` tells you to hand the branch off for review and open a PR per your team's process. Plug in whatever you use (a code-review skill, your CI, a manual review).
 - **OpenSpec (optional, `architect` Path A).** `architect` defaults to slicing straight into issues via `prd-to-issues` (Path B). It can instead scaffold an OpenSpec change if your repo already uses OpenSpec, which is a separately installed tool (`npm install -g @fission-ai/openspec`). Skip it unless your team has standardized on it.
+- **draw.io tooling (optional, `architect` deliverable 2).** `architect` asks for an `architecture.drawio` next to `SPEC.md` and leaves how you produce it up to you. The `draw-diagram` skill in the [drawio-diagram-skill](https://github.com/eranw2000/drawio-diagram-skill) pack covers that part: a visual grammar to author against, plus a validator and renderer so the diagram gets looked at before it is called done. Any other draw.io workflow does the job equally well.
 
 ## Docs
 
