@@ -19,7 +19,7 @@ cat <<'EOF'
 {
   "hookSpecificOutput": {
     "hookEventName": "PostToolUse",
-    "additionalContext": "PLAN-GATE: a plan was just approved and you are about to switch from planning to doing. Before you make any change, run the plan-gate skill (~/.claude/skills/plan-gate/SKILL.md): surface every weak spot in the approved plan and drive each one to fixed or explicitly accepted WITH the user, one at a time, until you share a complete understanding. Then proceed. Do not start the implementation until the gate is complete, or the user explicitly tells you to skip it. For a genuinely trivial plan, you may say so and ask the user whether to skip the gate."
+    "additionalContext": "PLAN-GATE: a plan was just approved and you are about to switch from planning to doing. Before you make any change, run the plan-gate skill (~/.claude/skills/plan-gate/SKILL.md): surface every weak spot in the approved plan and drive each one to fixed or explicitly accepted WITH the user, one at a time, until you share a complete understanding. Then proceed. Do not start the implementation until the gate is complete, or the user explicitly tells you to skip it. For a genuinely trivial plan, you may say so and ask the user whether to skip the gate. VALIDATE-BEFORE-BUILD: ask once, as part of the gate, whether this plan should be validated before it is built. If it commits to building in a stack that is slow or expensive to iterate in while a question about experience, layout, workflow, or a contested requirement is still open, name the cheaper artifact that would settle the question first and record the decision in the plan either way. When neither condition holds, skip this silently."
   }
 }
 EOF

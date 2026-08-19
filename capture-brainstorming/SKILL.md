@@ -89,10 +89,41 @@ If the project has many transcripts, you may fan out several subagents over disj
 
 In full capture mode, merge the current-conversation spine (step 2) with the subagent returns (step 4). In checkpoint mode, use only the current-conversation material from step 2. Deduplicate across sources. Where two sessions reached different conclusions on the same point, keep the later one and note the earlier as superseded (don't silently drop it). Organize by theme, not chronology.
 
+**Second precondition (hard gate): the single-slot check.** `BRAINSTORM.md` in the project data dir is a
+single slot. Every initiative working in this project writes to that one path, so a second initiative
+destroys the first one's brainstorm log. No test can see the loss, because a brainstorm log has no
+runtime behavior to break.
+
+Resolve your target path first. If a `docs/*/BRAINSTORM.md` already exists whose `Initiative`
+field names the initiative you are writing for, THAT file is your target, and the copy at
+the usual path is not yours to touch. Otherwise your target is the usual path. Then, on
+the target you resolved:
+
+1. Check whether the target path already exists. If it does not, write normally and ask
+   nothing. A path that holds no file yet must never produce a question here.
+2. If it exists, read its `Initiative` field.
+3. If that field names the initiative you are working on, proceed as today.
+4. If it names a different initiative, or the field is absent, STOP and ask the user.
+   Name the initiative that owns the file on disk, name the one you were about to write
+   for, and offer the alternative in the same breath: write to
+   `docs/<initiative>/BRAINSTORM.md` instead and leave the existing file untouched.
+5. Never overwrite on your own judgement. The merge-don't-clobber behavior below applies
+   only WITHIN one initiative: merging another initiative's brainstorm into yours is the
+   same loss in a quieter shape, because the result reads as one coherent log.
+
+An absent `Initiative` field counts as a different initiative, not as a free slot. Every
+spec file written before this rule lacks the field, so reading absence as permission
+would make the check inert exactly where the risk is highest.
+
 Write `BRAINSTORM.md` to the project data dir: `~/.claude/projects/<project_name>/BRAINSTORM.md`. If a `BRAINSTORM.md` already exists, read it first and merge into it rather than clobbering: preserve anything already captured, fold the new material into the existing sections, bump the `Last updated` date. This merge-don't-clobber behavior is what makes repeated checkpoints safe, and it means a later full capture folds everything together without losing prior checkpoints. Use this shape (adapt freely; it is a log, not a rigid form):
 
 ```markdown
 # BRAINSTORM, <Project or Topic>
+
+**Initiative:** <the one initiative this file describes>
+**Governing plan:** <absolute path to the plan or decision record this file implements, or the words "this log itself" when there is no separate plan>
+**State as of <YYYY-MM-DD>:** <In flight | Delivered | Abandoned>, with the evidence, for example which issues are still open.
+**Do not overwrite this file for a different initiative.** A later initiative writes its own under `docs/<initiative>/BRAINSTORM.md`.
 
 **Status:** <In progress, checkpointing | Brainstorm captured, ready for /analyst>
 **Last updated:** <YYYY-MM-DD>

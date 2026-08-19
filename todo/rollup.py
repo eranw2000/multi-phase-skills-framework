@@ -48,8 +48,18 @@ def canonical_todo_files():
 
 
 def bucket_keyword(heading_text):
-    """First word of a bucket heading, lowercased (active, queued, parked, ...)."""
-    return heading_text.strip().split()[0].lower() if heading_text.strip() else ""
+    """First label word of a bucket heading, lowercased (active, queued, parked, ...).
+
+    Files separate the label from its description with an em dash, an ASCII hyphen, or a
+    colon, depending on who wrote them. Splitting on whitespace alone returned 'active:'
+    for "## 1. Active: concrete next steps now", so that project's Active and Queued
+    items were silently missing from the rollup.
+    """
+    t = heading_text.strip().lstrip("*_`").strip()
+    if not t:
+        return ""
+    first = re.split(r"[\s\u2014\u2013\-:/(]", t, maxsplit=1)[0]
+    return first.strip(":.,\u2014\u2013-").lower()
 
 
 def parse_open_items(todo_path, wanted_keywords):

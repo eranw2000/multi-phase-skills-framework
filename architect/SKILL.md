@@ -95,8 +95,37 @@ The matrix lives in SPEC.md section 10 (added below).
 
 If the user pushes to skip ("just write it"), explain that a thin SPEC.md silently strands requirements and produces TDD tests for the wrong system. Offer a fast path: for each unvisited area, ask one highest-leverage question. "Defer to developer" or "flag as OQ" are valid answers, but record the answer. Never silently skip.
 
+**Second precondition (hard gate): the single-slot check.** `SPEC.md` at the project root is a
+single slot. Every initiative in the repo writes to that one path, so a second initiative
+destroys the first one's specification. No test can see the loss, because a specification has no
+runtime behavior to break.
+
+Resolve your target path first. If a `docs/*/SPEC.md` already exists whose `Initiative`
+field names the initiative you are writing for, THAT file is your target, and the copy at
+the usual path is not yours to touch. Otherwise your target is the usual path. Then, on
+the target you resolved:
+
+1. Check whether the target path already exists. If it does not, write normally and ask
+   nothing. A path that holds no file yet must never produce a question here.
+2. If it exists, read its `Initiative` field.
+3. If that field names the initiative you are working on, proceed as today.
+4. If it names a different initiative, or the field is absent, STOP and ask the user.
+   Name the initiative that owns the file on disk, name the one you were about to write
+   for, and offer the alternative in the same breath: write to
+   `docs/<initiative>/SPEC.md` instead and leave the existing file untouched.
+5. Never overwrite on your own judgement, and never merge two initiatives into one file.
+
+An absent `Initiative` field counts as a different initiative, not as a free slot. Every
+spec file written before this rule lacks the field, so reading absence as permission
+would make the check inert exactly where the risk is highest.
+
 ```markdown
 # SPEC, <project>
+
+**Initiative:** <the one initiative this file describes>
+**Governing plan:** <absolute path to the plan or decision record this file implements, or the words "this file and REQUIREMENTS.md beside it" when there is no separate plan>
+**State as of <YYYY-MM-DD>:** <In flight | Delivered | Abandoned>, with the evidence, for example which issues are still open.
+**Do not overwrite this file for a different initiative.** A later initiative writes its own under `docs/<initiative>/SPEC.md`.
 
 **Status:** Draft for OpenSpec proposal
 **Last updated:** <YYYY-MM-DD>
@@ -201,12 +230,14 @@ Tell the user:
 - [ ] `architecture.drawio` exists next to SPEC.md (or marked N/A for pure-CLI / pure-library work with no components to diagram).
 - [ ] Path A: `openspec validate <change-name>` passes. Path B: issues created on the tracker.
 - [ ] REQUIREMENTS.md was complete before design started (no unresolved OQs or unfilled sections); any gaps were filled by the user, not guessed.
+- [ ] The header names the Initiative, the governing plan, and the dated state. The single-slot check ran before the write.
 - [ ] User has read and confirmed SPEC.md (confirmed, not assumed) before any slicing, and reviewed the implementation artifacts.
 
 ## Guardrails
 
 - Do not write application code. Pseudocode in SPEC.md for clarity is fine.
 - Do not silently modify REQUIREMENTS.md. Raise change requests and wait for user approval.
+- Do not overwrite a `SPEC.md` or `REQUIREMENTS.md` that names a different initiative. Stop and ask, and offer `docs/<initiative>/` instead.
 - Do not start design while REQUIREMENTS.md has unresolved Open Questions or unfilled sections. Stop and ask the user for the missing answers first.
 - Do not slice (Path B) or scaffold (Path A) until the user has confirmed they read SPEC.md.
 - Do not decide alone on non-trivial design choices. Surface options + tradeoffs to the user first.

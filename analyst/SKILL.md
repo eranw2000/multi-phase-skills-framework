@@ -160,12 +160,41 @@ When every branch has either a concrete answer or a flagged open question, summa
 
 If the user pushes to skip the interview ("just write it"), explain that a thin REQUIREMENTS.md poisons every downstream phase (architect, TDD, review) and offer a fast path: for each unvisited area, ask a single highest-leverage question, accept "defer to architect" or "unknown, flag as OQ" as valid answers, but record the answer. Never silently skip an area to satisfy the user's pace.
 
+**Second precondition (hard gate): the single-slot check.** `REQUIREMENTS.md` at the repo root is a
+single slot. Every initiative in the repo writes to that one path, so a second initiative
+destroys the first one's specification. No test can see the loss, because a specification has no
+runtime behavior to break.
+
+Resolve your target path first. If a `docs/*/REQUIREMENTS.md` already exists whose `Initiative`
+field names the initiative you are writing for, THAT file is your target, and the copy at
+the usual path is not yours to touch. Otherwise your target is the usual path. Then, on
+the target you resolved:
+
+1. Check whether the target path already exists. If it does not, write normally and ask
+   nothing. A path that holds no file yet must never produce a question here.
+2. If it exists, read its `Initiative` field.
+3. If that field names the initiative you are working on, proceed as today.
+4. If it names a different initiative, or the field is absent, STOP and ask the user.
+   Name the initiative that owns the file on disk, name the one you were about to write
+   for, and offer the alternative in the same breath: write to
+   `docs/<initiative>/REQUIREMENTS.md` instead and leave the existing file untouched.
+5. Never overwrite on your own judgement, and never merge two initiatives into one file.
+
+An absent `Initiative` field counts as a different initiative, not as a free slot. Every
+spec file written before this rule lacks the field, so reading absence as permission
+would make the check inert exactly where the risk is highest.
+
 Use the template below. Write at the vocabulary level the user uses. Number requirements so the architect can reference them by ID. Keep WHAT and WHY together. If a HOW slipped in during the interview, move it to Open Questions or Out of Scope.
 
 ## REQUIREMENTS.md template
 
 ```markdown
 # REQUIREMENTS, <Project or Initiative Name>
+
+**Initiative:** <the one initiative this file describes>
+**Governing plan:** <absolute path to the plan or decision record this file implements, or the words "this file and SPEC.md beside it" when there is no separate plan>
+**State as of <YYYY-MM-DD>:** <In flight | Delivered | Abandoned>, with the evidence, for example which issues are still open.
+**Do not overwrite this file for a different initiative.** A later initiative writes its own under `docs/<initiative>/REQUIREMENTS.md`.
 
 **Status:** Draft for architect review
 **Last updated:** <YYYY-MM-DD>
@@ -305,6 +334,7 @@ Before declaring REQUIREMENTS.md done, verify:
 - [ ] Glossary matches the codebase vocabulary where applicable.
 - [ ] References are verified accessible. No broken or guessed URLs.
 - [ ] All tables use markdown pipes. No Unicode box-drawing characters anywhere.
+- [ ] The header names the Initiative, the governing plan, and the dated state. The single-slot check ran before the write.
 - [ ] The user has reviewed the draft and confirmed it reflects their understanding.
 
 ## Handoff

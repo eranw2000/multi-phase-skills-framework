@@ -26,6 +26,7 @@ Supporting skills used across the chain:
 - **todo** — persistent per-project `TODO.md` with a cross-project index. Other skills hand deferred work to it.
 - **save-context** — end-of-session save into the project `CLAUDE.md` and memory.
 - **close-session** — save-context plus teardown of resources this session started.
+- **`/close-session-report`**: optional command that runs the whole `close-session` workflow and then writes a record of everything it produced to `~/.claude/projects/<project>/session-closeouts/`. Use it when the close-out itself is worth keeping: which files changed, which memory was written, what went onto the TODO, what was stopped, and what was deliberately skipped. The skill still owns the workflow; the command only adds the file.
 
 A start-of-session briefing is available separately as the `/new-session` command in the companion commands pack; it is not bundled here.
 
@@ -58,6 +59,9 @@ chmod +x ~/.claude/hooks/plan-gate-reminder.sh
 
 # Optional: the command that stops after the gate so you can switch models
 cp multi-phase-skills-framework/commands/pause-after-planning.md ~/.claude/commands/
+
+# Optional: the command that saves each close-out to a dated record file
+cp multi-phase-skills-framework/commands/close-session-report.md ~/.claude/commands/
 ```
 
 To wire the hook, add this entry to `~/.claude/settings.json` under `hooks` (merge with any existing `PostToolUse` list):
