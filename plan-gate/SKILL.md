@@ -53,6 +53,10 @@ This is the interactive core. For each weak spot, in severity order:
    - **Accepted** the user explicitly accepts the risk or the choice as-is. Record the
      reason in one line. Accepted is a real, allowed outcome: not every weak spot has to
      be fixed, but every one must be consciously decided.
+   - **Routed** the weak spot shows the DESIGN is wrong, not the plan. Fixed cannot
+     express this: the plan may be a faithful implementation of an approach that does
+     not hold, so driving it to Fixed just polishes the wrong plan. Send it back to the
+     design step with the finding, and re-run the gate against the revised plan.
 
 Do not batch the weak spots into one big question. Do not move past a weak spot until it
 is Fixed or Accepted. If resolving one changes the plan enough to raise a new weak spot,

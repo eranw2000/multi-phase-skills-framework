@@ -56,9 +56,41 @@ Check with the user which modules they want tests for, and what a good test look
 1. The interview reached shared understanding. The problem, the solution, and the module sketch were each confirmed by the user (steps 3 and 4). "Looks fine, keep going" counts; silence does not.
 2. The destination is known. The project's tracker, or a file path if there is no tracker.
 
+**Second precondition (hard gate): the single-slot check.** `PRD.md` at the repo root is a
+single slot. Every initiative that falls back to a file instead of the tracker writes to that one path, so a second initiative
+destroys the first one's specification. No test can see the loss, because a specification has no
+runtime behavior to break.
+
+Resolve your target path first. If a `docs/*/PRD.md` already exists whose `Initiative`
+field names the initiative you are writing for, THAT file is your target, and the copy at
+the usual path is not yours to touch. Otherwise your target is the usual path. Then, on
+the target you resolved:
+
+1. Check whether the target path already exists. If it does not, write normally and ask
+   nothing. A path that holds no file yet must never produce a question here.
+2. If it exists, read its `Initiative` field.
+3. If that field names the initiative you are working on, proceed as today.
+4. If it names a different initiative, or the field is absent, STOP and ask the user.
+   Name the initiative that owns the file on disk, name the one you were about to write
+   for, and offer the alternative in the same breath: write to
+   `docs/<initiative>/PRD.md` instead and leave the existing file untouched.
+5. Never overwrite on your own judgement, and never merge two initiatives into one file.
+
+An absent `Initiative` field counts as a different initiative, not as a free slot. Every
+spec file written before this rule lacks the field, so reading absence as permission
+would make the check inert exactly where the risk is highest.
+
 Write the PRD with the template below, then file it as a single issue on the tracker (or save the file). You may skip a template section when it genuinely does not apply, but keep Testing Decisions and Out of Scope; they are where this skill earns its keep.
 
 <prd-template>
+
+**Initiative:** <the one initiative this file describes>
+**Governing plan:** <absolute path to the plan or decision record this file implements, or the words "this PRD itself" when there is no separate plan>
+**State as of <YYYY-MM-DD>:** <In flight | Delivered | Abandoned>, with the evidence, for example which issues are still open.
+**Do not overwrite this file for a different initiative.** A later initiative writes its own under `docs/<initiative>/PRD.md`.
+
+Keep these four lines at the top whether the PRD lands as an issue on the tracker or as
+`PRD.md`. They name the initiative that owns it.
 
 ## Problem Statement
 The problem that the user is facing, from the user's perspective.
@@ -124,6 +156,7 @@ Before declaring the PRD done, verify:
 - [ ] The user confirmed the module sketch before the PRD was filed.
 - [ ] The PRD was filed where the user expects it (a tracker issue, or `PRD.md`).
 - [ ] No REQUIREMENTS.md was produced. If one was needed, the work should have gone to /analyst.
+- [ ] The header names the Initiative, the governing plan, and the dated state. The single-slot check ran before the write.
 - [ ] Plain prose: no em dashes, no marketing adjectives, no Unicode box-drawing characters in tables.
 
 ## Handoff
