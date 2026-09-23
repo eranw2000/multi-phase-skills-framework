@@ -1,12 +1,12 @@
 ---
-model: fable
+model: inherit
 name: prd-to-issues
 description: Break a plan, spec, or PRD into independently-grabbable issues on the project issue tracker using tracer-bullet vertical slices. Use when user wants to convert a plan into issues, create implementation tickets, or break down work into issues.
 ---
 
 # To Issues
 
-<!-- Based on the Matt Pocock skills set (https://github.com/mattpocock). -->
+<!-- Based on the Matt Pocock skills set (https://github.com/mattpocock); install the companion skills via /setup-matt-pocock-skills. -->
 
 Break a plan into independently-grabbable issues using vertical slices (tracer bullets).
 
@@ -107,7 +107,7 @@ Iterate until the user approves the breakdown.
 
 **Precondition (hard gate):** Do not publish until all three are true:
 
-1. The source plan is identified by name. Specify the file path (`SPEC.md`, `REQUIREMENTS.md`, `PRD.md`) or the source issue URL. "Whatever was in conversation" is not enough — the issues must point back to a real artifact so a later review can anchor.
+1. The source plan is identified by name. Specify the file path (`SPEC.md`, `REQUIREMENTS.md`, `PRD.md`) or the source issue URL. "Whatever was in conversation" is not enough: the issues must point back to a real artifact so a later review can anchor.
 2. The user explicitly approved the step-4 breakdown. "Looks fine, keep going" counts; silence does not.
 3. At least one slice is AFK with no blockers. If every slice is HITL or blocked, the breakdown isn't ready for an AFK agent. Tell the user why and re-slice.
 

@@ -112,10 +112,9 @@ def build_todo(project_name, seed_items, date_str):
         synth = f"Per-project todo list. Created {date_str} as a blank project todo list."
         active_block = ""
 
-    index_dir = INDEX_DIR
     return f"""# {project_name} — TODO
 
-{synth} Cross-linked from the global cross-project TODO at `~/.claude/projects/{index_dir}/TODO.md`.
+{synth} Cross-linked from the global cross-project TODO at `~/.claude/projects/{INDEX_DIR}/TODO.md`.
 
 Maintenance rule: when state moves, update this file AND the project `CLAUDE.md` (and the cross-project index) in the same turn.
 
@@ -144,7 +143,7 @@ State buckets (in order of relevance):
 
 ## How to keep this file useful
 
-- When you finish an item, strike it (don't delete on first pass — keep one session of history) and update the matching note in `CLAUDE.md`.
+- When you finish an item, strike it (don't delete on first pass, keep one session of history) and update the matching note in `CLAUDE.md`.
 - When the user says "let's pick up X", move X to Active and write the first concrete next step.
 - When state shifts, update this file AND the relevant `CLAUDE.md` entry AND the cross-project index in the same turn.
 - Don't duplicate detail from `CLAUDE.md` here. One line per item plus a pointer is the target.

@@ -26,7 +26,6 @@ Supporting skills used across the chain:
 - **todo** — persistent per-project `TODO.md` with a cross-project index. Other skills hand deferred work to it.
 - **save-context** — end-of-session save into the project `CLAUDE.md` and memory.
 - **close-session** — save-context plus teardown of resources this session started.
-- **`/close-session-report`**: optional command that runs the whole `close-session` workflow and then writes a record of everything it produced to `~/.claude/projects/<project>/session-closeouts/`. Use it when the close-out itself is worth keeping: which files changed, which memory was written, what went onto the TODO, what was stopped, and what was deliberately skipped. The skill still owns the workflow; the command only adds the file.
 
 A start-of-session briefing is available separately as the `/new-session` command in the companion commands pack; it is not bundled here.
 
@@ -59,9 +58,6 @@ chmod +x ~/.claude/hooks/plan-gate-reminder.sh
 
 # Optional: the command that stops after the gate so you can switch models
 cp multi-phase-skills-framework/commands/pause-after-planning.md ~/.claude/commands/
-
-# Optional: the command that saves each close-out to a dated record file
-cp multi-phase-skills-framework/commands/close-session-report.md ~/.claude/commands/
 ```
 
 To wire the hook, add this entry to `~/.claude/settings.json` under `hooks` (merge with any existing `PostToolUse` list):
@@ -85,6 +81,27 @@ The hook is optional and non-blocking: without it, `plan-gate` still runs whenev
 
 The persistence skills (`capture-brainstorming`, `analyst`, `todo`, `save-context`, `close-session`) assume the standard Claude Code layout: a per-project data dir at `~/.claude/projects/<X>/` and a memory index under the dash-encoded home path (e.g. `-Users-jdoe` for `/Users/jdoe`). They derive that path from `$HOME`, so they work on any machine without editing.
 
+### Development-flow rules (optional)
+
+`rules/` holds short standing rules for how Claude should work during development. Each file is one topic:
+
+- `testing-and-review.md`: what makes a test real, checks that cannot fail, when to run heavier proof, how to treat reviews
+- `find-the-rule.md`: when each fix contains the next bug, stop and find the one rule behind all of them
+- `measure-a-new-guard.md`: run a new check over what is already live before it ships
+- `validate-before-you-build.md`: when to build a throwaway proof of concept first
+- `consult-the-documented-source.md`: read where a credential or tool is documented before reporting it missing
+- `model-routing.md`: which model tier plans, builds and does routine work
+- `release-workflow.md`: the two-stage ship flow (needs the claude-release-workflow pack)
+
+Copy the ones you want into your rules folder:
+
+```bash
+mkdir -p ~/.claude/rules
+cp multi-phase-skills-framework/rules/*.md ~/.claude/rules/
+```
+
+Claude Code loads every `.md` file in `~/.claude/rules/` at the start of each session, in every project, so each file you copy is read on every session. Copy only the ones you want applied everywhere.
+
 ## Dependencies and companions (not bundled)
 
 These skills reference a few things this framework does not include. None are required to use the core chain; they are points where the framework hands off to your own tooling.
@@ -92,6 +109,7 @@ These skills reference a few things this framework does not include. None are re
 - **Review and pull-request / checkpoint step after `tdd`.** The framework deliberately does not prescribe a review or PR tool. When tests are green, `tdd` tells you to hand the branch off for review and open a PR per your team's process. Plug in whatever you use (a code-review skill, your CI, a manual review).
 - **OpenSpec (optional, `architect` Path A).** `architect` defaults to slicing straight into issues via `prd-to-issues` (Path B). It can instead scaffold an OpenSpec change if your repo already uses OpenSpec, which is a separately installed tool (`npm install -g @fission-ai/openspec`). Skip it unless your team has standardized on it.
 - **draw.io tooling (optional, `architect` deliverable 2).** `architect` asks for an `architecture.drawio` next to `SPEC.md` and leaves how you produce it up to you. The `draw-diagram` skill in the [drawio-diagram-skill](https://github.com/eranw2000/drawio-diagram-skill) pack covers that part: a visual grammar to author against, plus a validator and renderer so the diagram gets looked at before it is called done. Any other draw.io workflow does the job equally well.
+- **Commands and skills from the sibling packs (optional).** A few skills mention a command that ships elsewhere: `/instruct` and `/new-session` in [claude-commands](https://github.com/eranw2000/claude-commands), `/split-claude-md` in [claude-maintenance-skills](https://github.com/eranw2000/claude-maintenance-skills), and `/pr-checkpoint` and `/release` in [claude-release-workflow](https://github.com/eranw2000/claude-release-workflow). Each mention is a pointer, not a requirement; without the other pack the step is skipped.
 
 ## Docs
 
@@ -116,7 +134,7 @@ MIT. See [LICENSE](LICENSE) and [NOTICE](NOTICE). The skills derived from Matt P
 
 The skills and the plan-auditor agent in this pack pin a Claude Code model alias in their frontmatter, so each artifact runs on the tier its work needs:
 
-- `model: fable`: planning and judgment-heavy review
+- `model: inherit`: planning and judgment-heavy review. These run on your session model, so start a planning or review session on your strongest model (switch with `/model`).
 - `model: opus`: execution and content work
 - `model: sonnet`: routine or mechanical steps
 

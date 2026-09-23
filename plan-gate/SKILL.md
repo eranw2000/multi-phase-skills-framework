@@ -1,5 +1,5 @@
 ---
-model: fable
+model: inherit
 name: plan-gate
 description: Verify an approved plan before executing it. The moment you leave plan mode (switch to auto or accept mode), surface every weak spot in the plan and drive each one to fixed or explicitly accepted with the user, reaching shared understanding, before any code is written. Use right after a plan is approved (a hook reminds you), or when the user says "gate this plan", "grill the plan before we start", "verify the plan", or wants a shared-understanding check before execution. Not for stress-testing an early idea (use grill-me); this is the pre-execution gate on an already-approved plan.
 disable-model-invocation: false
@@ -23,8 +23,12 @@ start implementing until the gate is complete.
 ### 1. Get the approved plan
 
 - If the user passed a path, read that file.
-- Otherwise read the most recently modified file in `~/.claude/plans/` (the plan you just
-  got approved). Confirm in one line which plan you are gating.
+- Otherwise the plan has to be IDENTIFIED, never guessed. `~/.claude/plans/` holds every
+  plan from every session, so the newest file there is only your own when nothing else has
+  written since, and gating the wrong plan wastes the whole gate while looking correct.
+  List the candidates newest first with their times (`ls -lt ~/.claude/plans/ | head -10`)
+  and ask which one, with your best guess named as the recommendation. Confirm in one line
+  which plan you are gating.
 - If neither exists (the plan lives only in the conversation), gate the plan as stated in
   the conversation and say so; the steps below still apply.
 - Recall the original goal or request the plan is meant to satisfy. The gate checks the
@@ -70,8 +74,40 @@ When every weak spot is Fixed or Accepted:
   and each weak spot with its resolution (Fixed, or Accepted plus the reason), so the
   decisions are durable. If there is no plan file, put the same record in your summary
   message instead.
-- Give the user a one-screen summary: N weak spots, X fixed, Y accepted, and the net
-  changes to the plan.
+- **Copy every decision that CONSTRAINS CODE into the project CLAUDE.md, with its decision
+  number.** A plan is read by SECTION during the build, and the section a builder reads is the
+  build slice, not the decisions list at the top. So a number that lives only in the decisions
+  list is durable and unreachable: the builder implements the slice, invents whatever the slice
+  text left unsaid, writes tests from that same reading, and both agree. Nothing goes red,
+  because the only thing that disagrees is a paragraph nobody opened.
+
+  A decision constrains code when an implementer could get it wrong without noticing: a
+  threshold, a window, a count, a severity, a cadence, a retention period, an id a token is
+  bound to, an enum a state maps onto. Move those. Leave the ones that only describe how the
+  work is run (who reviews, where tests run, when to deploy) in the plan.
+
+  Put them where the project already keeps its rules, usually a "Decisions that must not be
+  undone silently" section, one line each, each naming the plan and its decision number so the
+  full wording is one hop away. The project CLAUDE.md loads at the start of every session in
+  that project, which is the whole point: the builder meets the number without having to know
+  it exists. **Check the file's own size threshold first**; if it is over, the decisions go to
+  the project's satellite and the report says `/split-claude-md` is due.
+
+  **Then prove it with a command, not by reading.** Grep the project file for a distinctive
+  phrase of each decision you moved, plus a CONTROL phrase you know is already in the file. A
+  zero on the control means the check is broken, not that the file is clean.
+
+  Measured on a real project: a plan's decision 3 fixed the reader feedback rule at "3+
+  ratings of 1-2 in 30 days, or a 30-day average below 3.50". The build slice named only the
+  two problem codes. The session implemented a 7-day window with a 40% share instead, wrote
+  seven tests from that same wrong reading, and committed it with 545 tests green; it was
+  caught only because the plan was reopened later for an unrelated reason. Replaying this
+  step against that one plan afterwards found ELEVEN more code-constraining rules stranded in
+  the decisions list, including the other two thirds of decision 3 and the whole of decision
+  10, all still waiting for the slices not yet built. One plan, one gate, twelve live holes.
+
+- Give the user a one-screen summary: N weak spots, X fixed, Y accepted, the net
+  changes to the plan, and which decisions were copied into the project CLAUDE.md.
 - State plainly that the gate is complete and you are about to execute the (possibly
   updated) plan. Then proceed.
 
