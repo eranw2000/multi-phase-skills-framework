@@ -1,5 +1,5 @@
 ---
-model: fable
+model: inherit
 name: architect
 description: Act as a Solution Architect. Read REQUIREMENTS.md, engage the user on design decisions, write SPEC.md, then slice into tracer-bullet issues on the project tracker via /prd-to-issues (the default), or scaffold an OpenSpec change via /opsx:propose only when the user explicitly asks for the OpenSpec route, so the developer can implement task by task. Use after the analyst skill (or after REQUIREMENTS.md exists by any other means) when the project needs an explicit design phase before slicing. Output captures the HOW (modules, interfaces, NFR strategy, data flow). Not for problem-space gathering (use analyst).
 ---
@@ -24,7 +24,7 @@ Three things this skill cares about most. Everything below is amplification of t
 
 2. **Precondition gate before writing SPEC.md** (see step 4). Do not write SPEC.md until every area in step 3 has a concrete choice or flagged OQ, AND the coverage matrix accounts for every FR/NFR/C from REQUIREMENTS.md. This is the enforcement layer; without it, every other discipline in the skill is optional under time pressure.
 
-3. **Traceability, both directions** (see step 3.5 coverage matrix + SPEC.md section 10). Forward: every D-N anchors back to requirement IDs (FR-N, NFR-X-N, C-N). Reverse: every requirement in REQUIREMENTS.md gets accounted for as Satisfied / Deferred / Out of scope. Spec-review later anchors every COMMENTS.md finding to one of these IDs.
+3. **Traceability, both directions** (see step 3.5 coverage matrix + SPEC.md section 10). Forward: every D-N anchors back to requirement IDs (FR-N, NFR-X-N, C-N). Reverse: every requirement in REQUIREMENTS.md gets accounted for as Satisfied / Deferred / Out of scope. A later review can anchor every finding to one of these IDs.
 
 Failure modes these three prevent:
 

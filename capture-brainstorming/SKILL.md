@@ -1,7 +1,7 @@
 ---
-model: fable
+model: inherit
 name: capture-brainstorming
-description: Capture a project's brainstorming into a free-form BRAINSTORM.md handoff log covering the findings reached, the directions taken and rejected, and the open topics for the analyst. Runs in two modes. Full capture mines BOTH the current conversation AND past session transcripts, so a later `/analyst` session starts warm. Checkpoint mode is a fast incremental save of new decisions, facts, and open issues, built to run repeatedly during a long session so nothing is lost. Use full capture when the user says "save our brainstorm", "capture the brainstorming", "write up what we figured out", "prep this for the analyst", or "save everything before we spec it". Use checkpoint mode on "checkpoint this", "save our progress", "save what we have so far", and you may run one unasked at a clear milestone. Also hands deferred action items to the `todo` skill. NOT for snapshotting code or a feature branch (a separate code-checkpoint step), and NOT for end-of-session context saving (use save-context or close-session).
+description: Capture a project's brainstorming into a free-form BRAINSTORM.md handoff log covering the findings reached, the facts shared, the directions taken and rejected, and the open topics for the analyst. Runs in two modes. Full capture mines BOTH the current conversation AND past session transcripts, so a later `/analyst` session starts warm. Checkpoint mode is a fast incremental save of new decisions, facts, and open issues, built to run repeatedly during a long session so nothing is lost. Use full capture when the user says "save our brainstorm", "capture the brainstorming", "write up what we figured out", "prep this for the analyst", or "save everything before we spec it". Use checkpoint mode on "checkpoint this", "save our progress", "save what we have so far", and you may run one unasked at a clear milestone. Also hands deferred action items to the `todo` skill. NOT for snapshotting code or a feature branch (use pr-checkpoint), and NOT for end-of-session context saving (use save-context or close-session).
 disable-model-invocation: false
 ---
 
@@ -36,7 +36,7 @@ This skill runs in one of two modes. Decide which before starting.
 
 ### When to checkpoint proactively
 
-A skill cannot fire itself on a timer. Once a brainstorming or thinking session is underway, treat periodic checkpointing as your own responsibility: run a checkpoint, at clear milestones, without waiting to be asked. Good triggers:
+A skill cannot fire itself on a timer. Once a brainstorming or thinking session is underway, treat periodic checkpointing as your own responsibility: run a checkpoint, without being asked, at natural save points, roughly whenever a meaningful chunk of new ground has been reached. Good triggers:
 
 - A decision or direction was settled, or an earlier one reversed.
 - A new open issue, risk, or unknown surfaced that must not be forgotten.
@@ -186,5 +186,5 @@ Do not write REQUIREMENTS.md or design anything here. This skill ends at the han
 - Action items vs open topics, the distinction that keeps the TODO clean: an open topic (section 6) is a decision the analyst must make; an action item (section 7) is a task someone must do. Route decisions to the analyst via the doc, route tasks to the `todo` skill. Do not double-track an item in both places.
 - Checkpoint cadence is Claude's responsibility, not a hook's. Claude Code has no per-interval hook, and wiring a PostToolUse hook to checkpoint on every tool call would be too noisy and expensive. The proactive-trigger list above is the mechanism. If the user later wants hard guaranteed autosave on a timer, that is a separate hook project, not part of this skill.
 - A checkpoint and a full capture write the SAME file with the SAME merge logic, so checkpoints are never wasted: a later full capture folds them together and adds the archive pass.
-- This skill reads transcripts but never deletes them. Leave the archives in place.
+- This skill reads transcripts but never deletes them (unlike `salvage-session-archives`, which cleans up leftover folders). Leave the archives in place.
 - If the user asks to "capture and then spec it," run a full capture to completion, then invoke `/analyst`. Do not blur the two phases into one pass.

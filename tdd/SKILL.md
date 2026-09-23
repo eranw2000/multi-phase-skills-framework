@@ -1,12 +1,12 @@
 ---
 model: opus
 name: tdd
-description: Test-driven development with the red-green-refactor loop, using vertical tracer-bullet slices (one failing test, then the minimal code to pass, repeat). Use this whenever you are about to build a non-trivial feature or fix a bug and want it covered by tests, even if the user does not say "TDD" by name, as well as when they mention TDD, "red-green-refactor", "test-first", or writing a failing test before the code. For a bug fix, the first red test reproduces the bug. Not for adding tests to already-finished code with no build loop, and not for merely running or reviewing an existing test suite (use your test-runner or a code-review pass for those).
+description: Test-driven development with the red-green-refactor loop, using vertical tracer-bullet slices (one failing test, then the minimal code to pass, repeat). Use this whenever you are about to build a non-trivial feature or fix a bug and want it covered by tests, even if the user does not say "TDD" by name, as well as when they mention TDD, "red-green-refactor", "test-first", or writing a failing test before the code. For a bug fix, the first red test reproduces the bug. Not for adding tests to already-finished code with no build loop, and not for merely running or reviewing an existing test suite (use verify or code-review for those).
 ---
 
 # Test-Driven Development
 
-<!-- Based on the Matt Pocock skills set (https://github.com/mattpocock). -->
+<!-- Based on the Matt Pocock skills set (https://github.com/mattpocock); install the companion skills via /setup-matt-pocock-skills. -->
 
 ## Philosophy
 
@@ -119,7 +119,47 @@ Rules:
 - Only enough code to pass current test
 - Don't anticipate future tests
 - Keep tests focused on observable behavior
-- Add tests with Edit/Write, never by shell redirection (`cat >>`, `tee -a`): a shell-appended test can land after a `__main__` runner and silently never run
+- Add tests with Edit/Write, never by shell redirection (`cat >>`, `tee -a`): a
+  shell-appended test can land after a `__main__` runner and silently never run
+
+**When the test's subject is an ORDER, a RANK, a PICK, a REFUSAL, or any BOUND, LIMIT,
+BUDGET or CAP with a numeric expected value, name the wrong implementations BEFORE choosing
+the fixture.** These subjects share a trap the other rules here do not catch: the fixture
+can make the rule under test and the obvious wrong rule give the SAME answer, and the test
+then passes with the rule deleted. It is invisible to reading and to every checklist item
+above, and it recurred again and again on a real project, some of those times inside
+sessions where the rule was quoted in the project's own notes.
+
+**A BOUND needs the same care, and a defect once walked straight through without it.** A
+wait budget belonging to a BATCH was implemented per PERSON, and its test asserted
+`sum(slept) == 9144 * 3 * len(results)`, putting the corpus size in the expected value so
+the assertion agreed with the defect. Two candidate rules give 27,432 and 164,592 on a
+six-row fixture and both look plausible on the two-row fixture that was already lying
+around. **For a bound, the fixture needs MORE ROWS THAN THE BOUND**, or the right and wrong
+rules agree by arithmetic rather than by correctness.
+
+Three steps, and the first is the one that gets skipped:
+
+1. Write down the candidate rules: the one under test, plus each wrong implementation a
+   reader could reasonably expect. Four is common for a ranking.
+2. Pick ONE fixture that answers differently under every one of them. If no such fixture
+   exists, the fixture is wrong, not the assertion.
+3. Put the list in the test's docstring with the answer each rule gives, so a later reader
+   can re-run the check by reading it.
+
+**A REFUSAL over several input categories is the easiest place to get step 2 wrong**: a
+filter that keeps only the strongest match and drops the rest. Test the refusal with the
+NEAR MISS, the strongest category that must still be refused, never the weakest. A total
+stranger is refused by the right rule AND by every plausible wrong one, so the test passes
+with the rule half-deleted. And PIN the category inside the test by calling the same
+classifier first (`assertEqual(classify(fixture), NEAR_MISS)`), because a fixture's name
+is a belief about which category it lands in. Measured on a real project: a test named
+"a NAME match is dropped" used an organisation name that scored NONE, so an
+implementation keeping NAME matches passed it; a reviewer caught it, and the fix was one
+subtest per category, each pinned.
+
+The tell that you skipped step 1: you can state what the test expects but not what a wrong
+implementation would return.
 
 ### 4. Refactor
 
@@ -144,6 +184,7 @@ After all tests pass, look for [refactor candidates](refactoring.md):
 [ ] The printed suite total increased by 1 after GREEN (read the number)
 [ ] Gate/guard change: mutation check done (break the guard, exactly this test fails, restore). Derive the LIST from the diff, not from memory: a set assembled from the fixes you remember making covers the lines you were already thinking about, which are the least likely to be wrong
 [ ] Negative test: contrast assertion present (gate un-armed gives the opposite outcome)
+[ ] Ordering/ranking/pick/refusal test, OR any bound/limit/budget/cap with a numeric expected value: the candidate rules are listed in the docstring, and the fixture answers DIFFERENTLY under each one. Mutate to each wrong rule, not only to "rule deleted". For a bound, the fixture has MORE rows than the bound, and the corpus size never appears in the expected value. For a refusal over several categories, the fixture is the NEAR MISS and its category is pinned by calling the classifier in the test
 [ ] Test sits above any __main__ runner, and is registered if the file uses a hand list
 ```
 

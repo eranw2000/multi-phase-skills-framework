@@ -1,5 +1,5 @@
 ---
-model: fable
+model: inherit
 name: grill-me
 description: Interview the user relentlessly about a plan, design, or document, walking the decision tree in dependency order until every weak spot is fixed or accepted. Asks one question at a time with a recommended answer, and explores the codebase rather than asking what the repo answers. Leaves NOTHING open, so an unresolved point becomes a question to the user, never a silent assumption. Defines every term the subject leans on but never explains, writing it to the repo CONTEXT.md glossary so later steps share one vocabulary. Takes an optional file path (e.g., "/grill-me SPEC.md"), else grills the plan in the conversation. Reusable on a rough idea, REQUIREMENTS.md, or SPEC.md. Use when the user wants their plan challenged or stress-tested, says "grill me", "stress-test this", "poke holes in", "define the terms", or wants a reviewer pass before committing. Also offers ADRs for one-way decisions where the repo uses them. Adversarial but constructive.
 argument-hint: "[optional path to a doc to grill, e.g. BRAINSTORM.md, REQUIREMENTS.md, SPEC.md]"
