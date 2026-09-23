@@ -59,19 +59,17 @@ If you're unsure whether a process belongs to this session, leave it and say so 
 
 Unlike the step above, this one is not about THIS session. A background job whose session ended without a terminal signal rests in state `blocked` forever and nothing expires it. That state is what the startup page shows as "Needs input", so it accumulates and competes with `TODO.md`, which is the list the user actually works from. On a real setup, dozens of jobs piled up over two months, and exactly ONE held a live uncaptured action.
 
-Report it every time, prune only when the user says so:
+Report it every time. The script only reports; removing a job is the user's own step:
 
 ```sh
-/usr/bin/python3 ~/.claude/skills/close-session/prune_stale_jobs.py
+python3 ~/.claude/skills/close-session/prune_stale_jobs.py
 ```
 
-It prints nothing when the list is clean, so the usual case costs one line. When it does list jobs:
+It reads `claude agents --json` and lists background sessions in `blocked` that started 14 or more days ago, one line each, followed by a `claude rm <id>` line per session. It never deletes anything. When it lists sessions:
 
-- **Read the recent ones before pruning.** The default 14-day window exists so a job the user was blocked on last week stays visible. A blocked job can hold a real pending ask, a drafted message, or a question no TODO ever captured. Skim each one's `detail` and, if the transcript still exists, its final message.
-- **Capture anything real into the project's `TODO.md` FIRST** (via the `todo` skill), and save any drafted artifact into the project data dir so it does not die with the job. Then prune.
-- Prune with `--apply`. It archives to `~/.local/state/claude-jobs-archive/` before deleting and refuses to delete unless every target made it into the archive, so a mistake is recoverable.
-
-Do not prune unprompted. Deleting a job is the one thing here that discards content, and the recent end of that list is exactly where a real ask lives.
+- **Read them before anyone removes one.** The 14-day window keeps a job the user was blocked on last week out of the list, but an older one can still hold a real pending ask, a drafted message, or a question no TODO ever captured. Open it in the agent view (`claude agents`) and read its last message.
+- **Capture anything real into the project's `TODO.md` FIRST** (via the `todo` skill), and save any drafted artifact into the project data dir so it does not die with the job.
+- Then hand over the `claude rm <id>` lines for the ones that are safe to remove, or say to press Ctrl+X twice on them in the agent view. Do not run them yourself: removing a session discards its content.
 
 ### 4. Final assistant message
 

@@ -4,9 +4,11 @@
 
 A broken extraction and an absent credential produce the same empty string. So one failed command is not evidence that something is absent. Before reporting a blocker:
 
-1. Read the place the project says the credential, token or tool lives.
-2. Try reading it there, the documented way.
+1. Read the documentation that says where the credential, token or tool lives.
+2. Check it there without reading its value: the file exists, its permissions, the key NAME is present, or the tool's own status command (`gh auth status`, `aws sts get-caller-identity`) answers.
 3. Only then report it as missing.
+
+Never read, print, log or paste a secret's value to check it. Its presence and a working status call answer the question; the value itself never needs to reach the conversation.
 
 **If it really is absent, say where you looked.** "No token in `~/.config/<tool>/config.yaml`, which the README names as its home" is something the user can act on. "No token available" is not.
 

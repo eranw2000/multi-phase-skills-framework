@@ -155,14 +155,13 @@ You have just edited files that every future session reads, and nothing has chec
   STALE='deferred|not deployed|never deployed|to go live|live deploy|no [a-z]+ service|nothing auto-deployed|no live|uncommitted|not pushed|not committed|not running|to ship|planned|still to do|next steps|TODO'
   grep -nEi "$STALE" ~/.claude/projects/<X>/CLAUDE.md
 
-  # The memory file is NOT in a fixed directory, and a project can have TWO of them.
-  # Resolve, PRINT what you resolved, then let `find` do the grep. An empty list means
-  # the name did not match, never that the project is clean.
-  MEM=$(find ~/.claude/projects -maxdepth 3 -path '*/memory/project_*<X>*.md')
+  # Memory files are NOT in one fixed directory: a memory store follows the launch
+  # directory. Find every memory file that names the project, PRINT the list, then
+  # grep those. An empty list means the name did not match, never that it is clean.
+  MEM=$(find ~/.claude/projects -maxdepth 3 -path '*/memory/*.md' -exec grep -liE "<X>" {} +)
   echo "$MEM"
-  [ -z "$MEM" ] && echo "NO MEMORY FILE MATCHED <X> - widen the name, do NOT read this as clean"
-  find ~/.claude/projects -maxdepth 3 -path '*/memory/project_*<X>*.md' \
-    -exec grep -nEi "$STALE" {} +
+  [ -z "$MEM" ] && echo "NO MEMORY FILE NAMES <X> - try another spelling, do NOT read this as clean"
+  [ -n "$MEM" ] && printf '%s\n' "$MEM" | while IFS= read -r f; do grep -nEi "$STALE" "$f" /dev/null; done
 
   grep -nEi "$STALE" ~/.claude/projects/<index-dir>/TODO.md | grep -i "<X>"
   ```
