@@ -81,6 +81,19 @@ def test_report_prints_rm_lines_and_deletes_nothing():
           calls == [['claude', 'agents', '--json']], repr(calls))
 
 
+def test_unsafe_rows_get_no_rm_line():
+    rows = [sess('good1'), {'id': 'nostart', 'kind': 'background', 'state': 'blocked'},
+            sess('x; rm -rf ~'), sess('-rf'), sess('bad\nname', name='a\x1b[31mb')]
+    rc, out, _ = run_main([], runner(json.dumps(rows)))
+    check('exit 0', rc == 0)
+    check('a normal id still gets a line', 'claude rm good1' in out, out)
+    check('an unknown age gets no line', 'claude rm nostart' not in out, out)
+    check('an id with shell text gets no line', 'claude rm x;' not in out, out)
+    check('an option-shaped id gets no line', 'claude rm -rf' not in out, out)
+    check('the skipped rows are explained', 'gets no removal line' in out, out)
+    check('no control character reaches the output', '\x1b' not in out, repr(out))
+
+
 def test_cli_failures_exit_2():
     for label, run in (('missing CLI', runner(exc=FileNotFoundError())),
                        ('non-zero exit', runner(rc=1)),
@@ -101,6 +114,7 @@ def test_no_delete_path_left():
 
 for fn in (test_selection, test_age_is_milliseconds,
            test_report_prints_rm_lines_and_deletes_nothing,
+           test_unsafe_rows_get_no_rm_line,
            test_cli_failures_exit_2, test_no_delete_path_left):
     print(fn.__name__)
     fn()

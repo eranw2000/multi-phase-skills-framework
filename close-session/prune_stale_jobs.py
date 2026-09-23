@@ -30,6 +30,7 @@ USAGE
 """
 import argparse
 import json
+import re
 import subprocess
 import sys
 import time
@@ -101,14 +102,33 @@ def main(argv=None, run=subprocess.run, now_ms=None):
     print("%d blocked background session(s) started %d or more days ago:"
           % (len(targets), args.older_than))
     for s, age in targets:
-        name = str(s.get("name") or "").replace("\n", " ")[:56]
+        name = printable(s.get("name"))[:56]
         started = "?" if age is None else "%dd" % age
-        print("  %-10s %5s  %s" % (str(s.get("id") or "?")[:10], started, name))
-    print("\nNothing was removed. To remove one after reading it:")
-    for s, _ in targets:
-        if s.get("id"):
-            print("  claude rm %s" % s["id"])
+        print("  %-10s %5s  %s" % (printable(s.get("id") or "?")[:10], started, name))
+    removable = [s["id"] for s, age in targets
+                 if age is not None and safe_id(s.get("id"))]
+    print("\nNothing was removed.")
+    if removable:
+        print("To remove one after reading it:")
+        for sid in removable:
+            print("  claude rm %s" % sid)
+    if len(removable) < len(targets):
+        print("A session with no start time (?) or an unusual id gets no removal line. "
+              "Look at it in `claude agents` first.")
     return 0
+
+
+SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$")
+
+
+def safe_id(value):
+    """True for an id that is safe to paste into a shell as printed."""
+    return isinstance(value, str) and bool(SAFE_ID.match(value))
+
+
+def printable(value):
+    """The value as one line of text, with control characters made into spaces."""
+    return "".join(c if c.isprintable() else " " for c in str(value or ""))
 
 
 if __name__ == "__main__":

@@ -158,7 +158,7 @@ You have just edited files that every future session reads, and nothing has chec
   # Memory files are NOT in one fixed directory: a memory store follows the launch
   # directory. Find every memory file that names the project, PRINT the list, then
   # grep those. An empty list means the name did not match, never that it is clean.
-  MEM=$(find ~/.claude/projects -maxdepth 3 -path '*/memory/*.md' -exec grep -liE "<X>" {} +)
+  MEM=$(find ~/.claude/projects -maxdepth 3 -path '*/memory/*.md' -exec grep -liF -- "<X>" {} +)
   echo "$MEM"
   [ -z "$MEM" ] && echo "NO MEMORY FILE NAMES <X> - try another spelling, do NOT read this as clean"
   [ -n "$MEM" ] && printf '%s\n' "$MEM" | while IFS= read -r f; do grep -nEi "$STALE" "$f" /dev/null; done
