@@ -85,6 +85,27 @@ The hook is optional and non-blocking: without it, `plan-gate` still runs whenev
 
 The persistence skills (`capture-brainstorming`, `analyst`, `todo`, `save-context`, `close-session`) assume the standard Claude Code layout: a per-project data dir at `~/.claude/projects/<X>/` and a memory index under the dash-encoded home path (e.g. `-Users-jdoe` for `/Users/jdoe`). They derive that path from `$HOME`, so they work on any machine without editing.
 
+### Development-flow rules (optional)
+
+`rules/` holds short standing rules for how Claude should work during development. Each file is one topic:
+
+- `testing-and-review.md`: what makes a test real, checks that cannot fail, when to run heavier proof, how to treat reviews
+- `find-the-rule.md`: when each fix contains the next bug, stop and find the one rule behind all of them
+- `measure-a-new-guard.md`: run a new check over what is already live before it ships
+- `validate-before-you-build.md`: when to build a throwaway proof of concept first
+- `consult-the-documented-source.md`: read where a credential or tool is documented before reporting it missing
+- `model-routing.md`: which model tier plans, builds and does routine work
+- `release-workflow.md`: the two-stage ship flow (needs the claude-release-workflow pack)
+
+Copy the ones you want into your rules folder:
+
+```bash
+mkdir -p ~/.claude/rules
+cp multi-phase-skills-framework/rules/*.md ~/.claude/rules/
+```
+
+Claude Code loads every `.md` file in `~/.claude/rules/` at the start of each session, in every project, so each file you copy is read on every session. Copy only the ones you want applied everywhere.
+
 ## Dependencies and companions (not bundled)
 
 These skills reference a few things this framework does not include. None are required to use the core chain; they are points where the framework hands off to your own tooling.
