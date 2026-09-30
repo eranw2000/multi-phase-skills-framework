@@ -102,7 +102,13 @@ GREEN: Write minimal code to pass → test passes
 
 This is your tracer bullet - proves the path works end-to-end.
 
-For a bug fix, the first RED is a test that reproduces the bug. Confirm it fails for the right reason (the actual defect, not a typo or setup error) before you touch the fix, so you know the test is really pinning the behavior you're about to correct.
+For a bug fix, the first RED is a test that reproduces the bug **with the ORIGINAL input that showed it**: the captured request, the real row, the real file, the exact command. Not a cleaned-up version you wrote from memory of the bug. Say in the test where that input came from (a one-line comment: the log, the ticket, the user's message, the date). A test built on invented input is written by the same mind as the fix, so the two agree with each other and neither has met the case that failed.
+
+For a new feature, at least one test uses a REAL sample of what the feature will receive (a row from the real data, a file a user actually sent, a captured response), again with a line saying where it came from. The rest can be small made-up cases.
+
+The EXPECTED answer on a real sample must come from the sample, never from the code under test. Read it off the input by hand, or work it out by a route the code does not use, BEFORE you run the code on it. A number copied from the code's own output pins whatever the code does, bug included: a test-file counter's "real repo" check once expected 0 because the counter said 0, while the repo held two test modules the counter could not see.
+
+Confirm the RED fails for the right reason: **an assertion about the behavior failed.** A missing test file, zero tests found, an import or syntax error, an unavailable service or a missing credential is a setup failure, not a RED. Fix it and run again until an assertion fails. Only then touch the fix, so you know the test is really pinning the behavior you're about to correct.
 
 ### 3. Incremental Loop
 

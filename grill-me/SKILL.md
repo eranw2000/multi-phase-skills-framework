@@ -153,6 +153,13 @@ When active:
 - **If the subject was a file**: produce an updated version of the file reflecting resolutions. Save it. List accepted risks in their own section, and stated assumptions in their own section, each phrased as a checkable claim naming who would confirm it. There is no "Open Questions" section, because a finished grill has none; a branch the user chose to defer goes under stated assumptions with what it waits on.
 - **If the subject was an in-conversation plan**: produce a summary message with resolutions, accepted risks and stated assumptions.
 - **Either way**, name the glossary file and the terms settled in it, so the next step starts from the same vocabulary.
+- **When the grill runs before `/analyst`** (analyst started it, or the subject is a rough idea and requirements come next), also write the result to `BRAINSTORM.md`, the file `/analyst` warm-starts from: `~/.claude/projects/<X>/BRAINSTORM.md`, or the repo root when there is no project folder. Without it the grill lives only in the conversation and a later analyst session starts cold. Put everything under one heading, `## Grill, <date> (Written by /grill-me)`, which is also how `/analyst` knows a grill already ran, with these sub-headings:
+  - "Findings and understandings": each resolution with its reason, then the accepted risks and the stated assumptions, each marked as such.
+  - "Facts and information shared": what the user told you that the requirements will need.
+  - "Directions taken and rejected": with why.
+  - "Open topics for the analyst": only requirement areas the idea itself never touched, such as performance targets or accessibility. Anything the idea leans on (a term it uses, a user it assumes, a constraint it depends on) is a branch of this grill and is resolved before the wrap-up, never listed here. A finished grill leaves nothing open.
+
+  When BRAINSTORM.md already exists, add this heading below what is there. When the grill changed or rejected an earlier line in the file, do not delete it: mark it `(superseded by the grill of <date>)`, so the file stays one history and the reader knows which version holds. This is the file-subject rule above applied to this file.
 
 ## Stance
 

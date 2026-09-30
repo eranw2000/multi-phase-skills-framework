@@ -40,11 +40,21 @@ If you find yourself short on tokens or attention and have to skip something, sk
 
 ## Interview process
 
-### 0. Warm-start from BRAINSTORM.md (if present)
+### 0a. Offer to grill the idea first
+
+Before anything else, offer `/grill-me` on the idea. This interview maps the problem space; the grill attacks the idea itself: is it the right problem, does it hold up, what does it lean on without saying. Run first, it means the requirements start from an idea that survived an attack rather than from its first version.
+
+- Ask once, as a one-keystroke question with Yes recommended: "Grill the idea first with /grill-me?"
+- Skip the question only when a grill ran on this same idea earlier in this conversation. Say so, and go to step 0b.
+- When BRAINSTORM.md already carries a heading marked "Written by /grill-me", still ask, but name that grill's date and ask whether the idea has changed since. Recommend Yes when it has, No when it has not. A grill of an earlier version does not cover the current one.
+- On Yes, invoke `/grill-me` through the Skill tool with the idea as its subject (BRAINSTORM.md when one exists), and tell it this is a grill before `/analyst`, so it writes its results to BRAINSTORM.md. When it finishes, continue at step 0b, which reads that file.
+- On No, go to step 0b and do not ask again in this run.
+
+### 0b. Warm-start from BRAINSTORM.md (if present)
 
 Before framing the conversation, check for a brainstorm handoff doc written by `/capture-brainstorming`: `~/.claude/projects/<X>/BRAINSTORM.md`, with the repo root as fallback. If it exists, read it in full.
 
-- Treat its "Findings and understandings", "Facts and information shared", and "Directions taken and rejected" sections as already-confirmed material. Mirror back a one-paragraph summary for confirmation, but do not re-interview settled ground.
+- Treat its "Findings and understandings", "Facts and information shared", and "Directions taken and rejected" sections as already-confirmed material. When it holds more than one heading, the newest "Written by /grill-me" heading wins over anything earlier it contradicts, and a line marked superseded is not confirmed material. Mirror back a one-paragraph summary for confirmation, but do not re-interview settled ground.
 - Drive the interview from its "Open topics for the analyst" list: those are the threads to resolve, plus any of the eight step-3 areas the brainstorm never touched.
 - Rejected directions go to Non-Goals or Out of Scope; do not reopen them unless the user does.
 
