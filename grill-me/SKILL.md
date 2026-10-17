@@ -74,6 +74,8 @@ For each item above, ask what the most rigorous reviewer would object to. Catego
 - Vocabulary used inconsistently, or a load-bearing term never defined at all
 - Open questions left as "we will figure it out later"
 
+**An aspect with no objection still gets a question when your reading of it could differ from the user's.** The goal is shared understanding, not only finding faults, so a part of the plan that looks fine to you is not settled until the user confirms they picture it the same way. Put it as one short confirm question, in its place in the dependency order, with your reading as the recommended answer. Skip it only where the subject states the thing so plainly that no second reading exists.
+
 ### 3. Walk the tree, one question at a time
 
 Treat the objections as a decision tree. Order them by dependency: a decision that other decisions hang on gets resolved before the ones that depend on it. Do not jump around the tree; resolve the dependencies between decisions one by one.
