@@ -51,7 +51,14 @@ Categories to sweep:
 - Measured vs assumed: every signal, threshold, or filter the plan proposes must state
   whether it was measured against real data or assumed. Flag each assumed one and name
   the cheap measurement that would settle it (a plan changed materially once the real
-  numbers replaced the assumption).
+  numbers replaced the assumption). **Resource claims count too**: memory, time, calls,
+  disk. A claim that a cost does NOT grow with input size ("independent of school size",
+  "constant memory") is a scaling claim, and one whole-process peak at one size cannot
+  test it, because a transient inside one component hides under the peak. Name the
+  component-level measurement at two sizes.
+  One measured case: a plan said a reader used "a few hundred MB, independent of
+  input size"; one full-run peak read flat, while one column was converted whole,
+  about 1.1 GB at the largest allowed input.
 - The plan's load-bearing PREMISE, including one it inherited rather than proposed. Ask
   what single claim decides this plan's SCOPE, then ask whether that claim was measured
   or merely read somewhere. A premise sourced from the project's own code comments, its

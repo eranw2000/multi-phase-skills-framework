@@ -86,6 +86,8 @@ This block is the first thing the next session reads, and the first thing the us
 
 **Twelve lines or fewer, not counting the `Checked:` line.** The budget is the specification, not a preference. The provenance line is exempt because it is a stamp rather than prose to read, and making it compete with the account is how it would get dropped. A pin that runs long stops being read, and an unread pin is worse than none because every future session still pays to load it.
 
+**A command you could not run yourself is still owed every part you CAN run.** When the pin hands over a script whose writes you were not allowed to perform (a production change the permission check refused, a step that needs the reader's own login), run each part of it that only reads, or its dry run, before writing the pin, and name that run in `Checked:`. "I could not run it" covers the writes, never the whole script. If no part can run, say so in `Checked:`.
+
 **One action per pin.** A pin holding two actions has handed the ranking back to the user, which is the failure the whole block exists to prevent. Runners-up belong in the Active bucket, where they already are.
 
 **Plain must not become rosier.** Every caveat, limit and unknown in the technical account survives into the pin. "The tests pass, and they do not cover the Hebrew rendering" is one line and it is the honest one. A pin written at the end of a session naturally sounds tidier than the session was, so re-read it once against what actually happened.

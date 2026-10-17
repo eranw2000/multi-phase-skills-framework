@@ -88,89 +88,9 @@ The matrix lives in SPEC.md section 10 (added below).
 
 ### 4. Write SPEC.md
 
-**Precondition (hard gate):** Do not write SPEC.md until BOTH of these are true:
+Check the two preconditions, then write SPEC.md from the template, including the coverage matrix in section 10.
 
-1. Every area in step 3 has a concrete choice or a flagged Open Question. The eleven areas: module boundaries, data model, control flow, integration points, NFR satisfaction, observability, security and privacy, deployment and operations, migration and rollout, cross-cutting concerns, risks.
-2. The coverage matrix (step 3.5) accounts for every FR/NFR/C from REQUIREMENTS.md.
-
-If the user pushes to skip ("just write it"), explain that a thin SPEC.md silently strands requirements and produces TDD tests for the wrong system. Offer a fast path: for each unvisited area, ask one highest-leverage question. "Defer to developer" or "flag as OQ" are valid answers, but record the answer. Never silently skip.
-
-**Second precondition (hard gate): the single-slot check.** `SPEC.md` at the project root is a
-single slot. Every initiative in the repo writes to that one path, so a second initiative
-destroys the first one's specification. No test can see the loss, because a specification has no
-runtime behavior to break.
-
-Resolve your target path first. If a `docs/*/SPEC.md` already exists whose `Initiative`
-field names the initiative you are writing for, THAT file is your target, and the copy at
-the usual path is not yours to touch. Otherwise your target is the usual path. Then, on
-the target you resolved:
-
-1. Check whether the target path already exists. If it does not, write normally and ask
-   nothing. A path that holds no file yet must never produce a question here.
-2. If it exists, read its `Initiative` field.
-3. If that field names the initiative you are working on, proceed as today.
-4. If it names a different initiative, or the field is absent, STOP and ask the user.
-   Name the initiative that owns the file on disk, name the one you were about to write
-   for, and offer the alternative in the same breath: write to
-   `docs/<initiative>/SPEC.md` instead and leave the existing file untouched.
-5. Never overwrite on your own judgement, and never merge two initiatives into one file.
-
-An absent `Initiative` field counts as a different initiative, not as a free slot. Every
-spec file written before this rule lacks the field, so reading absence as permission
-would make the check inert exactly where the risk is highest.
-
-```markdown
-# SPEC, <project>
-
-**Initiative:** <the one initiative this file describes>
-**Governing plan:** <absolute path to the plan or decision record this file implements, or the words "this file and REQUIREMENTS.md beside it" when there is no separate plan>
-**State as of <YYYY-MM-DD>:** <In flight | Delivered | Abandoned>, with the evidence, for example which issues are still open.
-**Do not overwrite this file for a different initiative.** A later initiative writes its own under `docs/<initiative>/SPEC.md`.
-
-**Status:** Draft for OpenSpec proposal
-**Last updated:** <YYYY-MM-DD>
-**Requirements source:** REQUIREMENTS.md
-
-## 1. Overview
-Two or three paragraphs. What is being built, the shape of the design, why this shape.
-
-## 2. Architecture
-Reference `architecture.drawio` (prefer draw.io over ASCII or Mermaid). Include one paragraph per component below the reference.
-
-## 3. Module Inventory
-| Module | Responsibility | Public interface | State |
-| --- | --- | --- | --- |
-
-## 4. Data Model
-Persistent entities, relationships, source of truth.
-
-## 5. Key Decisions
-- D-1: <decision>. Anchors to: <requirement IDs>. Alternatives considered: <list>. Why this: <reason>.
-
-## 6. NFR Satisfaction
-| NFR ID | Mechanism |
-| --- | --- |
-
-## 7. Risks and Mitigations
-| Risk | Likelihood | Impact | Mitigation |
-| --- | --- | --- | --- |
-
-## 8. Open Questions
-1. OQ-1:
-
-## 9. Rollout
-Order of deploy steps, feature flags, backfills, verification.
-
-## 10. Coverage Matrix
-Every requirement from REQUIREMENTS.md, accounted for. Zero silent drops.
-
-| Requirement ID | Status | Anchor |
-| --- | --- | --- |
-| FR-1 | Satisfied | D-3 |
-| FR-2 | Deferred | OQ-1 |
-| NFR-PERF-1 | Satisfied | D-5 |
-| C-1 | Out of scope | User confirmed YYYY-MM-DD: <reason> |
-```
+**Read `~/.claude/skills/architect/reference/4-write-spec.md` now, in full, and follow it. It is this step's full text; the line above is only a summary and is not enough to act on.**
 
 ### 4.5 Confirm the user has read SPEC.md (hard gate)
 
@@ -184,31 +104,9 @@ Do not invoke /prd-to-issues (Path B) or scaffold an OpenSpec change (Path A) un
 
 ### 5. Hand off to implementation artifacts
 
-Two paths. **Default to Path B (`/prd-to-issues`).** Use Path A (OpenSpec) ONLY when the user explicitly asks for the OpenSpec / `opsx:propose` route. If the repo already standardizes on OpenSpec, you may surface it as an option, but do not switch to it without the user opting in.
+Default to `/prd-to-issues` (Path B); scaffold an OpenSpec change (Path A) only when the user asks for that route.
 
-**Path B (default): direct slicing.** Slice SPEC.md into tracer-bullet vertical slices as issues on the project tracker. Right for nearly every project: lightweight, no new dependency, and the slices become assignable, closeable, PR-linkable work items. The durable design rationale already lives in the versioned `SPEC.md` and `architecture.drawio`, so the issues only need to carry the sliced work.
-
-1. Invoke `/prd-to-issues` with SPEC.md as input.
-2. Confirm the tracer-bullet vertical slices match the module inventory in SPEC.md.
-3. Hand off to `/tdd` against the top-priority issue.
-
-**Path A (opt-in): OpenSpec.** Use only when the user explicitly requests it, or the repo's established workflow is OpenSpec and the user confirms staying on it. Its value is per-change spec deltas versioned alongside code and a living spec corpus; without that need it is ceremony.
-
-If OpenSpec is not installed in this project:
-```
-npm install -g @fission-ai/openspec
-openspec init . --tools claude
-```
-Restart this Claude session afterwards so the slash commands register.
-
-Once SPEC.md is approved:
-
-1. Pick a kebab-case change name (e.g., `add-billing-export`, `migrate-to-postgres`).
-2. Run `/opsx:propose <change-name>` and provide SPEC.md content as the description input. OpenSpec scaffolds `openspec/changes/<change-name>/` and generates `proposal.md`, `design.md`, `tasks.md`, and spec deltas.
-3. Review the generated artifacts. Edit any that diverge from SPEC.md.
-4. Validate: `openspec validate <change-name>`. Resolve any failures.
-
-Do NOT install OpenSpec into a project just to satisfy this skill. Default to Path B.
+**Read `~/.claude/skills/architect/reference/5-hand-off.md` now, in full, and follow it. It is this step's full text; the line above is only a summary and is not enough to act on.**
 
 ### 6. Handoff to Developer
 

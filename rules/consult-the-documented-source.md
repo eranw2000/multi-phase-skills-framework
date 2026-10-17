@@ -13,3 +13,5 @@ Never read, print, log or paste a secret's value to check it. Its presence and a
 **If it really is absent, say where you looked.** "No token in `~/.config/<tool>/config.yaml`, which the README names as its home" is something the user can act on. "No token available" is not.
 
 The same applies to "blocked" and "cannot verify": name what you tried, and where.
+
+**Asking someone to send you a value is the same claim, and so is every question you write into a draft for someone else.** Before the question goes out, search your own project notes for its subject (the product, system or organization it is about), not only for the words the other person used. The answer is often already written down.
