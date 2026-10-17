@@ -48,6 +48,28 @@ Categories to sweep:
   a second deploy, for a defect one earlier sign-in would have shown in a minute.
 - Claims the codebase contradicts: the plan says reuse X, but X does not exist or does
   not do that.
+- Findings from an earlier review the plan does not carry. When the plan redoes or
+  replaces work that was already reviewed, and the caller names that review's record (or
+  the plan cites one), read the record and list EVERY finding in it, test gaps included,
+  not only the bypasses or bugs. For each, name the plan item that answers it: a fix, a
+  test that would go red, or a stated reason it no longer applies. A finding with no
+  answer is a weak spot, because the build will reach the same reviewer, who finds it
+  again.
+  One measured case: a second attempt at a guard turned four of the first review's
+  findings into tests and left out a fifth, a test gap; the plan audit, asked about
+  bypasses, did not notice, and the code reviewer found the same gap again after
+  the build.
+- Fields the plan leaves to a vendor's default. For every call the plan makes to a system
+  the repository does not own (a vendor REST API, a SaaS, a device), find that call's
+  documented fields in the project's notes or the vendor's spec, and list each one the plan
+  neither sets nor says it leaves at its default. Flag it hardest when a field's documented
+  values depend on another field the plan DOES set (a status that is valid "only when" some
+  id is 0), because the default then contradicts the rest of the payload. The docs' example
+  payload is not the field list: examples routinely leave fields out.
+  One measured case: a plan named a card's type and format from the vendor notes and
+  never named its status field, two lines below them ("0 Available, only when the
+  card has no owner"). The code copied the example payload, every card was stored as
+  a spare, and no card reached the hardware for two days.
 - Measured vs assumed: every signal, threshold, or filter the plan proposes must state
   whether it was measured against real data or assumed. Flag each assumed one and name
   the cheap measurement that would settle it (a plan changed materially once the real

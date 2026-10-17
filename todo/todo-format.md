@@ -64,7 +64,7 @@ Only one pin per file. Pinning replaces the block; unpinning removes it. (If a f
 This block is the first thing the next session reads, and the first thing the user reads when they sit back down. They did not write it, they have been away, and they read it in a hurry. Write it to a colleague who walked in five minutes ago, never to the session that just ended.
 
 - **The words.** Strip commit hashes, PR and issue numbers, phase and step numbers, run ids, the names of your own skills, agents, commands and hooks, and harness jargon such as gate, verdict, routed, vacuous, mutation and blast radius. Delete a jargon word rather than define it. Name the subject: "the deploy check reads the wrong commit", not "it was routed". Keep a file path only where the user has to open it, and then put the path alone on its line. One thing is NOT covered by this rule: a command the user has to type. A slash command or a shell line in the fenced block is the answer, not internal vocabulary. What the rule bans is naming the machinery that produced the finding.
-- **The shape.** Lead with the one concrete thing to do, give one sentence of why, then the exact command in a fenced block.
+- **The shape.** Lead with the one concrete thing to do, give one sentence of why, then the exact command in a fenced block. A command that only works from one folder starts with its `cd`.
 
 **The shape, in this order and nothing else:**
 
