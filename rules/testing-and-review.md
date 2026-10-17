@@ -4,7 +4,7 @@ The through-line: real bugs are found by **executing** the actual input through 
 
 ## Default proof is light
 
-For an ordinary change: **tests that fail without the change, plus one review.** Prove a new test is real by reverting the change once, watching the test go red, and restoring it.
+For an ordinary change: **tests that fail without the change, plus one review.** Prove a new test is real by hand: break **each** behaviour it claims, one at a time, and watch it go red. Break it toward every wrong outcome the property it guards rules out, not only the one its name suggests (a refusal broken into an accept, not only into a warning), and in every mode its name covers. Reverting the whole change at once proves only that the feature is gone.
 
 Heavier proof (a mutation run, frozen test lists, repeated review rounds) is for changes that can **delete data, kill or signal processes, or touch production** (deploys, releases, live services, credentials), or when the user asks for it.
 
@@ -40,3 +40,4 @@ When the change is in the risky class above:
 - **A reviewer's verdict is information for the user, not an instruction.** Bring the findings to the user and let them choose what to fix.
 - **Re-review the fix commit.** A fix round writes new code, and new code is a first draft.
 - **Reproduce a finding by running it before fixing it.** A finding you cannot reproduce may be wrong.
+- **Every review also asks what change is missing.** Does each production caller send every new field or flag? A test that passes it by hand proves nothing. And when a prompt or handler was edited, how many of its siblings changed: N of M.
