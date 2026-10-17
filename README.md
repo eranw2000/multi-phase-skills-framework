@@ -92,6 +92,7 @@ The persistence skills (`capture-brainstorming`, `analyst`, `todo`, `save-contex
 - `consult-the-documented-source.md`: read where a credential or tool is documented before reporting it missing
 - `model-routing.md`: which model tier plans, builds and does routine work
 - `release-workflow.md`: the two-stage ship flow (needs the claude-release-workflow pack)
+- `improve-dev-workflow.md`: when something slips past the harness, improve the development workflow in the same session (needs the claude-maintenance-skills pack)
 
 Copy the ones you want into your rules folder:
 
@@ -110,6 +111,7 @@ These skills reference a few things this framework does not include. None are re
 - **OpenSpec (optional, `architect` Path A).** `architect` defaults to slicing straight into issues via `prd-to-issues` (Path B). It can instead scaffold an OpenSpec change if your repo already uses OpenSpec, which is a separately installed tool (`npm install -g @fission-ai/openspec`). Skip it unless your team has standardized on it.
 - **draw.io tooling (optional, `architect` deliverable 2).** `architect` asks for an `architecture.drawio` next to `SPEC.md` and leaves how you produce it up to you. The `draw-diagram` skill in the [drawio-diagram-skill](https://github.com/eranw2000/drawio-diagram-skill) pack covers that part: a visual grammar to author against, plus a validator and renderer so the diagram gets looked at before it is called done. Any other draw.io workflow does the job equally well.
 - **Commands and skills from the sibling packs (optional).** A few skills mention a command that ships elsewhere: `/instruct` and `/new-session` in [claude-commands](https://github.com/eranw2000/claude-commands), `/split-claude-md` in [claude-maintenance-skills](https://github.com/eranw2000/claude-maintenance-skills), and `/pr-checkpoint` and `/release` in [claude-release-workflow](https://github.com/eranw2000/claude-release-workflow). Each mention is a pointer, not a requirement; without the other pack the step is skipped.
+- **`/improve-dev-workflow` (optional, `save-context` step 7).** At the end of a session, `save-context` (and so `close-session`) checks whether something reached you or a reviewer that a skill, hook, agent or rule should have caught. When it did, it asks once whether to improve the development workflow now, and runs `/improve-dev-workflow` from [claude-maintenance-skills](https://github.com/eranw2000/claude-maintenance-skills) on a yes. Without that pack, the answer is filed as an open action item instead.
 
 ## Docs
 
