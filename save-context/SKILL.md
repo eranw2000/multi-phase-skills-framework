@@ -66,13 +66,19 @@ File the index row in the matching topic index from step 3 when you keep one, no
 
 Then re-measure the index. `MEMORY.md` is truncated in silence past 200 lines or 25KB, and the rows that vanish are the ones at the bottom.
 
-### 7. Capture the session's open action items into the project TODO
+### 7. Ask whether this session exposed a fault in the harness itself
+
+When a trigger fired this session, ask the user once whether to run `/improve-dev-workflow` now; with nobody to ask, run it.
+
+**Read `~/.claude/skills/save-context/reference/7-harness-fault.md` now, in full, and follow it. It is this step's full text; the line above is only a summary and is not enough to act on.**
+
+### 8. Capture the session's open action items into the project TODO
 
 Add every still-open action item to the right bucket of the project TODO.md, correct items this session made false, and run the auto-sync once.
 
 **Read `~/.claude/skills/save-context/reference/8-open-action-items.md` now, in full, and follow it. It is this step's full text; the line above is only a summary and is not enough to act on.**
 
-### 8. Write the next-session pin
+### 9. Write the next-session pin
 
 The last thing this session owes the next one is a straight answer to "what do I do now". Write it into the project's `TODO.md` pin block (`## >>> NEXT SESSION: start here <<<`), replacing whatever is there.
 
@@ -80,13 +86,13 @@ The last thing this session owes the next one is a straight answer to "what do I
 
 Skip this only when the session genuinely ends with nothing to do next, and then remove the stale pin rather than leaving it to misdirect the next session.
 
-### 9. Read back what you wrote
+### 10. Read back what you wrote
 
 Re-read every span you edited, re-measure each file, and grep for stale status words and self-moving figures this session made false.
 
 **Read `~/.claude/skills/save-context/reference/11-read-back.md` now, in full, and follow it. It is this step's full text; the line above is only a summary and is not enough to act on.**
 
-### 10. Report what was saved
+### 11. Report what was saved
 
 Open the report with these five lines, each one sentence in plain words, each naming the file it was saved to (or "none"):
 
@@ -103,6 +109,7 @@ Then the detail:
 - Which satellite or rules file received evidence, and which memory files were created or updated
 - The size of each always-loaded file you touched, and whether any is over its limit
 - **The open action items added to `TODO.md` and the bucket each went in** (or "nothing was left open"), plus whether the cross-project index and the project memory were auto-synced
+- Whether a harness fault fired step 7, which artifact owns it, whether the user chose to improve the workflow now, and what `/improve-dev-workflow` changed (or "no harness fault this session", or "improvement declined, filed as an open item")
 - Anything you corrected because it had become false
 - The one action the pin now names
 
