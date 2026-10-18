@@ -1,17 +1,55 @@
 ---
 model: opus
 name: close-session
-description: End-of-session save AND cleanup. First makes running helper agents report what they found and records how to restart any stopped work, so the next session resumes from that point. Runs the whole of /save-context by reading that skill's own file, never a copy of it, then cleans up the shells, dev servers, and background agents/tasks this session spawned. Does NOT close the Terminal window. Use when the user says "this thread is done", "close this session", "end session", "end of session", "save and close", "wrap up and exit", "we're done, close this", or any variant signaling "save context and tidy up this session". For save-only without cleanup, use /save-context instead.
+description: End-of-session save AND cleanup. First checks that no helper agent or background command is still running or ended interrupted, and if one is, asks whether to wait for it or close now. Then makes running helper agents report what they found and records how to restart any stopped work, so the next session resumes from that point. Runs the whole of /save-context by reading that skill's own file, never a copy of it, then cleans up the shells, dev servers, and background agents/tasks this session spawned. Does NOT close the Terminal window. Use when the user says "this thread is done", "close this session", "end session", "end of session", "save and close", "wrap up and exit", "we're done, close this", or any variant signaling "save context and tidy up this session". For save-only without cleanup, use /save-context instead.
 disable-model-invocation: false
 ---
 
 # Close Session: save context, then clean up the session's resources
 
-Three-stage skill: make any running helpers report what they found and record how to restart the stopped work, do everything `/save-context` does (CLAUDE.md + MEMORY.md updates), then tear down anything THIS session started (background shells, dev servers, background agents / tasks). It does NOT close the Terminal window. That behavior was removed (a global flag could close the wrong window, especially from a detached/background session).
+First it checks that no helper agent or background command is still running, and asks the user to wait or close now if one is. Then three stages: make any running helpers report what they found and record how to restart the stopped work, do everything `/save-context` does (CLAUDE.md + MEMORY.md updates), then tear down anything THIS session started (background shells, dev servers, background agents / tasks). It does NOT close the Terminal window. That behavior was removed (a global flag could close the wrong window, especially from a detached/background session).
 
 ## Steps
 
+### 0. Check that no background work is still running (BEFORE anything else)
+
+A close should end a session whose work is done, not cut it off. So before step 1,
+check that every helper agent has finished, every background command has ended
+without interruption, and every reply this session is waiting for has arrived.
+
+Find what is still running:
+- **Helper agents**: call `ListAgents` (load it with ToolSearch if deferred) and count
+  every row marked `running`. A completion notice alone is not proof: an agent that
+  was sent a message after its notice wakes again.
+- **Background commands**: every `run_in_background` command this session started
+  needs its completion notice. One without a notice is still running.
+- **Waits**: a `Monitor`, a deploy wait, or a review that has not reported yet.
+
+Add one thing on top of that check: **a background command that ended INTERRUPTED
+counts too.** Its notice says killed, stopped or timed out, or it exited with a
+signal status (130, 137, 143), or its output stops mid-way. Its work did not finish,
+so the session never got the result it was waiting for. Work that belongs to another
+session is mentioned but never counted.
+
+**When everything finished cleanly:** say so in one line and go to step 1.
+
+**When anything is still running, or ended interrupted:** do NOT start step 1. Tell
+the user in plain words what is still going (one line each: what it is, how long it
+has run) and what ended interrupted, then ask with `AskUserQuestion`:
+
+1. **Wait (Recommended)**: end the turn and do nothing else. Each finish notice wakes
+   the session. When the last one arrives, run this check again; once it is clean,
+   carry on with the close from step 1 without asking again.
+2. **Close now**: go on to step 1, which makes running helpers report what they found
+   and records how to restart what gets stopped.
+
+When the only problem is an interrupted command (nothing is running), waiting cannot
+fix it, so offer **Re-run it, then close** in place of Wait. On Close now, its line
+goes into step 1's `Stopped work` list with its restart command.
+
 ### 1. Stop the running work and keep what it found (BEFORE the save)
+
+This step runs only after step 0 came back clean or the user chose **Close now**.
 
 The save reads the conversation, and the cleanup below kills what is still running.
 So a helper agent that is halfway through, and has not reported yet, loses
@@ -101,7 +139,7 @@ It reads `claude agents --json` and lists background sessions in `blocked` that 
 
 ### 5. Final assistant message
 
-Save-context has already reported what it saved. **Add to that report rather than repeating it:** what step 1 stopped and where its findings went (or "nothing was running"), what was cleaned up, and the stale-job line. Then close with one short confirmation, e.g.:
+Save-context has already reported what it saved. **Add to that report rather than repeating it:** what step 0 found running and what the user chose, what step 1 stopped and where its findings went (or "nothing was running"), what was cleaned up, and the stale-job line. Then close with one short confirmation, e.g.:
 
 > Context saved (CLAUDE.md + 1 memory). Added 3 open items to TODO.md (2 Active, 1 Parked). Stopped the dev server on :8002 and the background poll job. This session is wrapped up, you can close the window whenever.
 
