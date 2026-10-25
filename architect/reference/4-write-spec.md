@@ -62,8 +62,9 @@ Persistent entities, relationships, source of truth.
 | --- | --- |
 
 ## 7. Risks and Mitigations
-| Risk | Likelihood | Impact | Mitigation |
-| --- | --- | --- | --- |
+Product and delivery risks, not only security ones. Likelihood and impact are low, medium or high with a reason; never a computed score.
+| Risk: how it fails, and what triggers it | Likelihood | Impact | Mitigation | Still unknown after the mitigation |
+| --- | --- | --- | --- | --- |
 
 ## 8. Open Questions
 1. OQ-1:
