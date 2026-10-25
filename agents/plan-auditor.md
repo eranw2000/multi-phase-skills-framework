@@ -29,6 +29,17 @@ Categories to sweep:
 - Edge cases not handled: empty, very large, concurrent, partial-failure, retry,
   permission-denied, timezone or locale, network partition.
 - Missing failure paths and recovery behavior.
+- Boundary risks between parts. Where the plan touches more than one path to the same
+  data or rule, check each of these and flag the ones it does not answer:
+  - access rules that differ between the UI, the API, a background job, an export and an
+    admin or support tool;
+  - a cache or copy that keeps showing data after it was changed, revoked or deleted;
+  - a retry that creates a duplicate or changes the order of operations;
+  - a migration that can stop halfway and leave old and new shapes mixed;
+  - a health check or monitor that stays green while the user's journey or the data is
+    wrong;
+  - a fallback path that is weaker on privacy, security or accuracy than the main path;
+  - a language or locale change that breaks length, sorting, dates or money.
 - Irreversible or risky steps: data deletion, schema changes, force pushes, production
   writes, anything hard to undo, and whether the plan guards them.
 - Verification gap: how will each change be confirmed to work? Is there a test or check?
@@ -88,6 +99,10 @@ Categories to sweep:
   written-down belief attracts no scrutiny, which is what makes it dangerous. Flag it and
   name the cheap measurement. Worth the sweep because the payoff is asymmetric: a
   refutation deletes the plan.
+  **A mockup's "Built" or "unchanged" tag is such a premise.** For every screen the plan
+  leaves alone because the mockup says it already exists, open the real template (or
+  render the page) and compare it with the mockup screen: width, headings, section titles,
+  wording. Report each difference as a gap the plan does not cover.
   One measured case: a project's own source comments and its CLAUDE.md both stated
   that synchronous views serialize on a single thread under the deployed server,
   which was the entire basis for an async rewrite. Forty concurrent requests against

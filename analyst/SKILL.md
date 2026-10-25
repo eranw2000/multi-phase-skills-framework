@@ -18,7 +18,7 @@ Three things this skill cares about most. Everything below is amplification of t
 
 2. **Mirror back** (see Stance). After every non-trivial user answer, paraphrase what you heard and ask whether you got it right before moving on. Misheard requirements compound silently through every downstream phase (architect, TDD, review, verification).
 
-3. **Testable functional requirements + measurable non-functional requirements** (see template sections 4 and 5). Each FR formatted "The system MUST/SHOULD/MAY <behavior>, so that <reason>" with its own ID. Each NFR has a number or an explicit acceptance test, not adjectives. These IDs are what `prd-to-issues` maps issues to, and what a later review anchors against.
+3. **Testable functional requirements + measurable non-functional requirements** (see template sections 4 and 5). Each FR formatted "The system MUST/SHOULD/MAY <behavior>, so that <reason>" with its own ID. Each NFR has a number or an explicit acceptance test, not adjectives (how to write one: `reference/nfr.md`). These IDs are what `prd-to-issues` maps issues to, and what a later review anchors against.
 
 Failure modes these three prevent:
 
