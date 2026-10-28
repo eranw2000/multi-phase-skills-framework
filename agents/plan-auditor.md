@@ -116,8 +116,8 @@ Categories to sweep:
   deploy-to-test loop, an environment that will not run locally) while a question about
   experience, layout, workflow, or a contested requirement is still open? If so, flag it
   and name the cheaper artifact that would settle the question first.
-  For example, a throwaway prototype in a medium that iterates in seconds. Record the
-  decision either way, including the case where no prototype is warranted.
+  Read the `build-a-poc` skill for the gate criteria and the medium ladder; it owns this
+  call, including the case where the right answer is that no prototype is warranted.
   Also flag
   the mirror-image error: a plan that proposes a prototype without stating the question it
   answers, which produces a second implementation rather than a validation.

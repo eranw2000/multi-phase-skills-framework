@@ -36,7 +36,7 @@
         <mxCell id="grill" value="grill-me : stress-test any artifact before committing to it" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="510" y="500" width="520" height="50" as="geometry"/></mxCell>
 
         <!-- supporting band -->
-        <mxCell id="band" value="Supporting skills:  write-a-prd (single-feature shortcut to analyst + architect)  ·  init-project  ·  todo  ·  save-context + close-session (step 7 offers /improve-dev-workflow)" style="rounded=0;fillColor=#eeeeee;strokeColor=#999999;html=1;whiteSpace=wrap;fontStyle=2;dashed=1;verticalAlign=middle;align=center;" vertex="1" parent="1"><mxGeometry x="40" y="570" width="1830" height="50" as="geometry"/></mxCell>
+        <mxCell id="band" value="Supporting skills:  write-a-prd (single-feature shortcut to analyst + architect)  ·  init-project  ·  todo  ·  save-context + close-session (step 7 offers /improve-dev-workflow)  ·  build-a-poc (validate before you build)  ·  plan-status-sheet (plan status in a Google Sheet)" style="rounded=0;fillColor=#eeeeee;strokeColor=#999999;html=1;whiteSpace=wrap;fontStyle=2;dashed=1;verticalAlign=middle;align=center;" vertex="1" parent="1"><mxGeometry x="40" y="570" width="1830" height="50" as="geometry"/></mxCell>
 
         <!-- edges: phase chain -->
         <mxCell id="s0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=classic;strokeColor=#82b366;strokeWidth=2;html=1;" edge="1" parent="1" source="start" target="p1"><mxGeometry relative="1" as="geometry"/></mxCell>
