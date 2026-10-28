@@ -24,6 +24,13 @@ enforces is that the claim is checkable.
 **Never edit a cell in the browser.** Every run replaces every cell, so an edit made
 there is lost at the next release and nobody sees it go. Edit the rows in the project.
 
+**A push writes only to its own project's Sheet.** Every Sheet it writes carries a hidden
+marker naming the project (Sheets developer metadata), and a push refuses a Sheet marked
+as another project's, or an id another local project also records, before it writes
+anything. That is what stops a `plan_status_gsheet.json` copied from another project from
+overwriting that project's table. A Sheet with no marker yet is marked on its first push.
+A project that was renamed claims its own Sheet once with `--adopt`.
+
 ## The checks, and why each exists
 
 - **Plan coverage.** Every numbered heading in the plan must have a row, or be written
@@ -35,7 +42,8 @@ there is lost at the next release and nobody sees it go. Edit the rows in the pr
   `git log -1 --date=short` or from the deploy that carried it, never from memory.
 - **Schema.** The ten shared columns are present and in order. A project may append its
   own columns. It may not reorder or drop these, because the summary reads them by
-  position.
+  position. A build effort that starts with a number must read as days, a range
+  (`1.5-2 days`, `3 to 5 days`, counted at its lower end), sessions, hours or weeks.
 
 - **Dependencies.** Every row says what must happen first. WARNS rather than fails,
   so an existing table with empty cells is not blocked.
@@ -119,10 +127,12 @@ $P $S --project <name> --initiative <x> --push   # when it tracks several
 $P $S --repo <path>   --push       # find the project from a repository path.
 ```
 
-`--project` takes a project name, a unique fragment of it, or a path. `--repo` exits 3
+`--project` takes a project name, a unique fragment of it, or a path. `--repo` searches
+the project folders under `~/.claude/projects`, or under the folder named by
+`PLAN_STATUS_PROJECTS` when that is set, and exits 3
 when no project keeps a Sheet for that repository, which means skip, not fail. A Sheet that
 also tracks packages built in a SECOND repository declares it in `HAND_UPDATED_REPOS`: that
-repository's releases then find the Sheet and are told to set their hand-kept rows, instead
+repository's `--repo` runs then find the Sheet and are told to set their hand-kept rows, instead
 of hearing "no Sheet" and leaving them stale.
 
 ## Updating a project when a feature moves
@@ -138,7 +148,8 @@ of hearing "no Sheet" and leaving them stale.
 1. `--setup` writes `plan_status_config.py` into the project data folder and stops.
 2. Fill it in: the module that holds the rows, the plan file (or `INITIATIVES`), the
    repository path, and a `PINNED_CELL`. You do NOT write `sheet_rows()`: the skill owns
-   the mapping, and the shape is eight fields per row plus a `DATES` map keyed by feature
+   the mapping, and the shape is eight fields per row, an optional `PHASE_BUDGET` map
+   (`{phase: budget text}`, blank when absent), plus a `DATES` map keyed by feature
    name, so per-project copies cannot drift apart. Define
    `sheet_rows(data)` in the config only if this project's shape genuinely differs, and it
    then overrides the skill's.
@@ -159,10 +170,16 @@ screenshots.
 2. Configure the OAuth consent screen under Google Auth platform > Branding
    (https://console.cloud.google.com/auth/branding). Under Audience, Google's quickstart
    picks Internal, and says an app used outside your Workspace organization needs the
-   External user type instead.
+   External user type instead. With a personal Google account you need External, and
+   then you must add yourself as a test user. Google's consent-screen guide
+   (https://developers.google.com/workspace/guides/configure-oauth-consent) lists it:
+   "Click Audience." "Under Test users, click Add users." "Enter your email address
+   and any other authorized test users, then click Save."
 3. Under Google Auth platform > Clients (https://console.cloud.google.com/auth/clients),
    create a client with Application type Desktop app. Download its JSON file and save it
-   as `~/.config/plan-status-sheet/credentials.json`.
+   as `credentials.json` in the folder named by `PLAN_STATUS_GOOGLE_DIR`, or in
+   `~/.config/plan-status-sheet/` when that variable is unset. Create the folder first:
+   `mkdir -p "${PLAN_STATUS_GOOGLE_DIR:-$HOME/.config/plan-status-sheet}"`
 4. Install the client libraries:
    `python3 -m pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib`
 5. Run `python3 mint_token.py` in this folder, in a terminal on a machine with a browser.
@@ -173,6 +190,12 @@ screenshots.
 Enabling the API and consenting to the scope are separate steps. If a push stops with
 "The Google Sheets API is not switched on", do step 1 for the project that owns your
 client, wait a minute, and run it again; the token does not need minting again.
+
+An External app left in Testing gets a short-lived token. Google's OAuth page
+(https://developers.google.com/identity/protocols/oauth2) says a project with an external
+user type and "a publishing status of "Testing" is issued a refresh token expiring in
+7 days". When it expires, a push stops with "Google refused the saved token". Run
+`python3 mint_token.py --force` to mint a new one, then push again.
 
 Treat both files as secrets: never commit them, paste them, or print their contents.
 

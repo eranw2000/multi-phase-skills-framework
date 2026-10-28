@@ -26,7 +26,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-PROJECTS = Path.home() / ".claude" / "projects"
+# The folder holding one sub-folder per project. `--repo` searches it, so a project kept
+# anywhere else is found by setting PLAN_STATUS_PROJECTS to the folder that holds it.
+PROJECTS = Path(os.environ.get("PLAN_STATUS_PROJECTS")
+                or Path.home() / ".claude" / "projects").expanduser()
 # Where the OAuth client (credentials.json) and the minted token live. Override with
 # PLAN_STATUS_GOOGLE_DIR; mint_token.py reads the same variable.
 GOOGLE_DIR = Path(os.environ.get("PLAN_STATUS_GOOGLE_DIR")
@@ -140,6 +143,16 @@ def hand_updated(repo: str, project_name: str) -> bool:
     wanted = _repo_identity(repo)
     return wanted in {_repo_identity(d)
                       for d in (getattr(module, "HAND_UPDATED_REPOS", None) or ())}
+
+
+def hand_updated_message(repo: str, project_name: str) -> str:
+    """What a release in a hand-updated repository is told to do. It names the data
+    module THIS config loads, because a hardcoded name may be a file nobody reads."""
+    module = load_module(PROJECTS / project_name / CONFIG_NAME, f"msg_{project_name}")
+    data = getattr(module, "DATA_MODULE", None) or "the data module its config names"
+    return (f"{repo} is tracked by {project_name}'s Sheet with HAND-UPDATED rows: set "
+            f"the rows this release moved in {PROJECTS / project_name / data}"
+            f" (status and date), then push again.")
 
 
 def load_module(path: Path, name: str):
@@ -393,13 +406,15 @@ def default_sheet_rows(data, data_module: str):
     shipped work as untouched.
     """
     rows = []
+    # PHASE_BUDGET is optional: a project with no per-phase budget gets a blank cell.
+    budget = getattr(data, "PHASE_BUDGET", None) or {}
     for section, feature, what, status, phase, effort, where, depends in data.ROWS:
         if feature not in data.DATES:
             raise SystemExit(
                 f"no date recorded for {feature!r}: add it to DATES in {data_module}, "
                 f"and read it from a commit or a deploy rather than recalling it")
         rows.append([section, feature, what, status, data.DATES[feature], depends,
-                     phase, data.PHASE_BUDGET.get(phase, ""), effort, where])
+                     phase, budget.get(phase, ""), effort, where])
     return rows
 
 
@@ -466,15 +481,23 @@ class Project:
             raise SystemExit(f"{self.config.DATA_MODULE} has {attr!r} but no "
                              f"{dates_attr!r}; a missing date map cannot be a blank one")
         shim = type("RowsView", (), {"ROWS": rows, "DATES": dates,
-                                     "PHASE_BUDGET": self.data.PHASE_BUDGET})
+                                     "PHASE_BUDGET": getattr(self.data, "PHASE_BUDGET",
+                                                             None) or {}})
         out = [list(r) for r in default_sheet_rows(shim, self.config.DATA_MODULE)]
         return self._with_derived(out)
+
+    # --check and --status promise no network, so while this is True the derived columns
+    # are filled with a word saying they were not looked up, and git and gh never run.
+    offline = False
+    OFFLINE_CELL = "not looked up (offline)"
 
     def _with_derived(self, out):
         """Append the git-derived cells, once per push, cached so N rows are not N lookups
         of the same branch."""
         if not getattr(self.data, "SOURCES", None):
             return out
+        if self.offline:
+            return [row + [self.OFFLINE_CELL] * len(DERIVED_HEADERS) for row in out]
         if getattr(self, "_derived_cache", None) is None:
             _, self._derived_cache = derived_columns(self)
         blank = [""] * len(DERIVED_HEADERS)
@@ -770,6 +793,31 @@ def check_dates(project, report):
                 f"{malformed} malformed, {future} in the future")
 
 
+# A build-effort cell: a number or a range, then an optional unit. A range counts its
+# LOWER end, which is what the summary always read from "3 to 5 days". The unit decides
+# the day count, so "2 hours" is not read as two days.
+EFFORT = re.compile(r"^\s*(\d+(?:\.\d+)?)(?:\s*(?:-|to|–)\s*\d+(?:\.\d+)?)?"
+                    r"\s*([A-Za-z]+)?", re.I)
+EFFORT_UNITS = {"day": 1.0, "days": 1.0, "d": 1.0, "session": 1.0, "sessions": 1.0,
+                "week": 5.0, "weeks": 5.0, "hour": 0.125, "hours": 0.125, "h": 0.125}
+
+
+def effort_days(text):
+    """(days, readable). A cell that does not start with a digit is not counted and is
+    not an error (`(None, True)`); one that starts with a digit and cannot be read is
+    `(None, False)`, which check_schema fails BEFORE anything reaches the Sheet."""
+    text = str(text or "").strip()
+    if not text[:1].isdigit():
+        return None, True
+    found = EFFORT.match(text)
+    if not found:
+        return None, False
+    unit = (found.group(2) or "days").lower()
+    if unit not in EFFORT_UNITS:
+        return None, False
+    return float(found.group(1)) * EFFORT_UNITS[unit], True
+
+
 def check_schema(project, report):
     headers = project.headers
     rows = project.rows
@@ -786,6 +834,11 @@ def check_schema(project, report):
     unknown = statuses - set(project.status_style)
     if unknown:
         report.fail(f"status values with no colour: {sorted(unknown)}")
+    unreadable = [(r[1], r[8]) for r in rows if len(r) > 8 and not effort_days(r[8])[1]]
+    for feature, effort in unreadable:
+        report.fail(f"{feature!r} has a build effort the summary cannot count: {effort!r}. "
+                    f"Write it as days, a range ('1.5-2 days', '3 to 5 days'), sessions, "
+                    f"hours or weeks, or start it with a word if it is not a number.")
     off_scale = statuses - set(STATUS_ORDER)
     if off_scale:
         report.warn(f"status values outside the shared scale, so the summary will not "
@@ -918,8 +971,8 @@ def summary_rows(project):
                 number_cell(len(rows), bold=True)])
 
     unfinished = ("Testing", "In implementation", "Not started")
-    remaining = sum(float(str(row[8]).split()[0]) for row in rows
-                    if str(row[3]) in unfinished and str(row[8])[:1].isdigit())
+    remaining = sum(effort_days(row[8])[0] or 0 for row in rows
+                    if str(row[3]) in unfinished)
     blocked = [r for r in rows if str(r[5]).startswith("BLOCKED")]
     # FINISHED rows only. A not-started row whose dependency reads 'None' is not one
     # setting away, it is unwritten, and counting it here overstates what a deploy buys.
@@ -957,13 +1010,15 @@ def summary_rows(project):
 # ------------------------------------------------------------------ talking to Google
 
 def service():
-    from google.oauth2.credentials import Credentials
-    from googleapiclient.discovery import build
+    # The token check comes FIRST, so a machine with no token and no Google libraries
+    # is told about the token rather than shown an ImportError.
     if not os.path.isfile(TOKEN):
         raise SystemExit(
             f"no Sheets token at {TOKEN}.\n"
             f"Mint one once, in a terminal where a browser can open:\n"
             f"    python3 {Path(__file__).parent / 'mint_token.py'}")
+    from google.oauth2.credentials import Credentials
+    from googleapiclient.discovery import build
     # NO scopes= here. A refresh-token grant's scopes are fixed at consent time, and
     # passing a list makes google-auth send it on refresh, which fails the WHOLE refresh
     # if any entry was never consented, taking down every call the token did have.
@@ -1084,12 +1139,92 @@ def shared_tab_clash(project):
     return None
 
 
+# Every Sheet this skill writes carries a spreadsheet-level developer-metadata entry
+# naming the project that owns it. Google's reference: DOCUMENT visibility "is accessible
+# from any developer project with access to the document", so a new OAuth client still
+# sees it. A plan_status_gsheet.json copied from another project would otherwise point a
+# push at that project's Sheet, and the column guard would pass, because both Sheets
+# carry the same headers.
+MARKER_KEY = "plan-status-sheet:project"
+
+
+def a1_tab(tab):
+    """A tab name quoted for an A1 range: wrapped in single quotes, each one inside
+    doubled, so a name like Bob's tab reads as one tab."""
+    return "'" + str(tab).replace("'", "''") + "'"
+
+
+def sheet_owners(meta):
+    """The project names the Sheet's own markers claim it for."""
+    return [m.get("metadataValue") for m in (meta.get("developerMetadata") or [])
+            if m.get("metadataKey") == MARKER_KEY
+            and (m.get("location") or {}).get("spreadsheet")]
+
+
+def other_local_holders(project, sid):
+    """Other project folders that record this same Sheet id. Read offline, from disk."""
+    out = []
+    if not PROJECTS.is_dir():
+        return out
+    mine = project.dir.resolve()
+    for idf in sorted(PROJECTS.glob(f"*/{ID_NAME}")):
+        if idf.parent.resolve() == mine:
+            continue
+        try:
+            data = json.loads(idf.read_text())
+        except (OSError, ValueError):
+            continue
+        ids = {data.get("spreadsheetId")} | {
+            (v or {}).get("spreadsheetId")
+            for v in (data.get("initiatives") or {}).values()}
+        if sid in ids:
+            out.append(idf.parent.name)
+    return out
+
+
+def check_identity(project, sid, meta, adopt=False):
+    """Refuse a Sheet that belongs to another project, BEFORE anything is written.
+
+    Returns the marker requests the push must send: none when the Sheet is already
+    marked as this project's, a create when it carries no marker, and with `adopt` a
+    delete plus a create that moves the Sheet to this project."""
+    holders = other_local_holders(project, sid)
+    if holders and not adopt:
+        raise SystemExit(
+            f"REFUSING: Sheet {sid} is also recorded by {', '.join(holders)}. "
+            f"{project.id_file} was probably copied from there. Remove the id from "
+            f"{project.id_file.name} and run --setup to create this project's own Sheet.")
+    owners = sheet_owners(meta)
+    create = {"createDeveloperMetadata": {"developerMetadata": {
+        "metadataKey": MARKER_KEY, "metadataValue": project.name,
+        "location": {"spreadsheet": True}, "visibility": "DOCUMENT"}}}
+    if owners and project.name not in owners:
+        if not adopt:
+            raise SystemExit(
+                f"REFUSING: Sheet {sid} belongs to project {owners[0]!r}, not "
+                f"{project.name!r}. Check {project.id_file.name}. If this project was "
+                f"renamed and the Sheet really is its own, run again with --adopt.")
+        print(f"    --adopt: moving the Sheet from {owners[0]!r} to {project.name!r}")
+        return [{"deleteDeveloperMetadata": {"dataFilter": {
+            "developerMetadataLookup": {"metadataKey": MARKER_KEY}}}}, create]
+    if owners:
+        return []
+    print(f"    marking the Sheet as {project.name!r}'s, so a copied id cannot reach it")
+    return [create]
+
+
 def open_sheet(svc, project, create=False):
+    """(sheet id, {tab: tab id}, marker requests). The identity check runs here, before
+    the first write of the push."""
+    adopt = "--adopt" in sys.argv
     sid = project.spreadsheet_id()
     if sid:
-        meta = svc.spreadsheets().get(spreadsheetId=sid).execute()
+        meta = svc.spreadsheets().get(
+            spreadsheetId=sid,
+            fields="sheets.properties(title,sheetId),developerMetadata").execute()
+        marker = check_identity(project, sid, meta, adopt=adopt)
         return sid, {s["properties"]["title"]: s["properties"]["sheetId"]
-                     for s in meta["sheets"]}
+                     for s in meta["sheets"]}, marker
     if not create:
         raise SystemExit(f"{project.name} has no Sheet yet. Run --setup first.")
     grid_tab, summary_tab = tabs_for(project)
@@ -1101,23 +1236,27 @@ def open_sheet(svc, project, create=False):
     project.record_id(sid, getattr(project, "active", None))
     print(f"    created the Sheet and recorded its id in {project.id_file.name} "
           f"under {getattr(getattr(project, 'active', None), 'name', 'default')!r}")
+    marker = check_identity(project, sid, {}, adopt=False)
     return sid, {s["properties"]["title"]: s["properties"]["sheetId"]
-                 for s in made["sheets"]}
+                 for s in made["sheets"]}, marker
 
 
 def strangers(svc, sid, headers, tab):
-    """Header names on the Sheet that this run does not write.
+    """Header names on the Sheet that this run does not write, or None when the row
+    could not be read.
 
     The Sheet is online and easy to open, so somebody adding a column in the browser is
     the LIKELY case rather than the unlikely one, and this rewrites the whole grid.
-    Refusing costs one message; a silent rebuild costs their afternoon.
+    Refusing costs one message; a silent rebuild costs their afternoon. A read that
+    FAILED (a 503, a quota 429) inspected nothing, so it is never read as "no strangers".
     """
     from googleapiclient.errors import HttpError
     try:
         got = svc.spreadsheets().values().get(
-            spreadsheetId=sid, range=f"'{tab}'!A4:ZZ4").execute()
-    except HttpError:
-        return []
+            spreadsheetId=sid, range=f"{a1_tab(tab)}!A4:ZZ4").execute()
+    except HttpError as error:
+        print(f"    could not read row 4 of {tab!r}: {str(error)[:120]}")
+        return None
     row = (got.get("values") or [[]])[0]
     return [name for name in row if name and name not in headers]
 
@@ -1397,6 +1536,10 @@ def check_pinned_control(project, report):
 
 def do_check(project, online=False):
     print(f"CHECKING {project.name}")
+    # Offline means no git and no gh as well as no Google: the derived columns are not
+    # looked up, and the row checks never read them.
+    project.offline = not online
+    project._derived_cache = None
     report = Report()
     check_schema(project, report)
     check_dates(project, report)
@@ -1415,16 +1558,41 @@ def do_check(project, online=False):
 
 
 def push(project, create=False):
-    from googleapiclient.errors import HttpError
+    """Rewrite the Sheet, then read it back. An expired or revoked token surfaces as
+    google-auth's RefreshError on the first call that needs it, so it is caught here,
+    around every call, and turned into the one command that recovers."""
+    try:
+        from google.auth.exceptions import RefreshError
+    except ImportError:  # no Google libraries: service() says what to install
+        RefreshError = None
+    if RefreshError is None:
+        return _push(project, create)
+    try:
+        return _push(project, create)
+    except RefreshError as error:
+        raise SystemExit(
+            f"Google refused the saved token ({str(error)[:120]}). It has expired or "
+            f"was revoked. Mint a new one, then push again:\n"
+            f"    python3 {Path(__file__).parent / 'mint_token.py'} --force")
+
+
+def _push(project, create=False):
     clash = shared_tab_clash(project)
     if clash:
         raise SystemExit(
             f"initiative {clash!r} writes the same tab of the same Sheet. Give each "
             f"initiative its own GRID_TAB and SUMMARY_TAB (a dict keyed by initiative "
             f"name) before pushing; otherwise each push overwrites the other's table.")
+    project.offline = False
+    project._derived_cache = None
+    # Build both tabs BEFORE anything reaches Google, so a row that cannot be rendered
+    # stops the push before --setup has created and recorded a Sheet.
+    grid = grid_rows(project)
+    summary, counts, remaining, waiting, blocked, needed = summary_rows(project)
     svc = service()
+    from googleapiclient.errors import HttpError
     try:
-        sid, tabs = open_sheet(svc, project, create=create)
+        sid, tabs, marker = open_sheet(svc, project, create=create)
     except HttpError as error:
         raise SystemExit(explain(error))
 
@@ -1437,6 +1605,11 @@ def push(project, create=False):
 
     headers = project.headers
     unknown = strangers(svc, sid, headers, grid_tab)
+    if unknown is None and "--force" not in sys.argv:
+        print(f"    REFUSING to rewrite: row 4 could not be read, so any column added in "
+              f"the browser would be deleted unseen. Run again in a minute, or pass "
+              f"--force only if you mean to discard such columns.")
+        return 1
     if unknown and "--force" not in sys.argv:
         print(f"    REFUSING to rewrite: row 4 holds {len(unknown)} column(s) this run "
               f"does not write, so rebuilding would delete them.")
@@ -1446,8 +1619,6 @@ def push(project, create=False):
               f"again. Pass --force only if you mean to discard them.")
         return 1
 
-    grid = grid_rows(project)
-    summary, counts, remaining, waiting, blocked, needed = summary_rows(project)
     columns = len(headers)
     widths = [(i, i + 1, px) for i, px in enumerate(
         COLUMN_WIDTHS + [200] * (columns - len(COLUMN_WIDTHS)))]
@@ -1457,13 +1628,14 @@ def push(project, create=False):
                        merges=[(0, 1, 2, columns), (1, 2, 2, columns)],
                        filter_range=(3, len(grid), 0, columns))
     requests += rewrite(tabs[summary_tab], summary, widths=[(0, 1, 320), (1, 2, 90)])
+    requests += marker
     try:
         svc.spreadsheets().batchUpdate(spreadsheetId=sid,
                                        body={"requests": requests}).execute()
     except HttpError as error:
         raise SystemExit(explain(error))
 
-    failures = read_back(svc, sid, project, grid)
+    failures = read_back(svc, sid, project, grid, summary)
     print(f"    {len(project.rows)} rows; by status: {counts}")
     print(f"    days left on unfinished rows: {remaining}")
     print(f"    one setting away: {len(waiting)}; blocked: {len(blocked)}; "
@@ -1472,39 +1644,74 @@ def push(project, create=False):
     return 1 if failures else 0
 
 
-def read_back(svc, sid, project, grid):
-    """A successful write is not proof of correct content. Read the Sheet and compare.
+def _sent(cell_value):
+    """The value a cell request carries: its string, or its number."""
+    uv = cell_value["userEnteredValue"]
+    return uv["numberValue"] if "numberValue" in uv else uv.get("stringValue", "")
 
-    The comparison carries its own control: a value the Sheet cannot hold must be
-    reported as different, or a checker that always agrees would look identical to one
-    that works.
+
+def _same(sent, live):
+    """Did the Sheet keep what was sent? A number reads back as a number (3.0 as 3)."""
+    if isinstance(sent, (int, float)) and not isinstance(sent, bool):
+        try:
+            return float(live) == float(sent)
+        except (TypeError, ValueError):
+            return False
+    return str(sent) == ("" if live is None else str(live))
+
+
+def _live(got, r, c):
+    row = got[r] if r < len(got) else []
+    return row[c] if c < len(row) else ""
+
+
+def differing_cells(sent_rows, got, first_row=0):
+    """(row, column) of every cell, from `first_row` on, the Sheet did not keep."""
+    return [(r, c) for r in range(first_row, len(sent_rows))
+            for c in range(len(sent_rows[r]))
+            if not _same(_sent(sent_rows[r][c]), _live(got, r, c))]
+
+
+def read_back(svc, sid, project, grid, summary=None):
+    """A successful write is not proof of correct content. Read BOTH tabs and compare.
+
+    The comparison carries a real control: the same `differing_cells` is run over a copy
+    of what came back with one cell changed, and must name that cell. A comparison that
+    always agrees fails the push, instead of looking identical to one that works.
     """
-    got = svc.spreadsheets().values().get(
-        spreadsheetId=sid, range=f"'{tabs_for(project)[0]}'!A1:ZZ{len(grid)}",
-        valueRenderOption="UNFORMATTED_VALUE").execute().get("values", [])
-
-    def live(r, c):
-        row = got[r] if r < len(got) else []
-        return str(row[c]) if c < len(row) else ""
-
-    differing = [(r, c) for r in range(3, len(grid))
-                 for c in range(len(project.headers))
-                 if grid[r][c]["userEnteredValue"]["stringValue"] != live(r, c)]
-    control_fires = live(4, 1) != "A VALUE THE SHEET DOES NOT HOLD"
-    print(f"    read back {len(grid) - 3} rows: {len(differing)} cell(s) differ "
-          f"(control fires: {control_fires})")
-    for r, c in differing[:5]:
-        print(f"      row {r + 1} col {c + 1}: "
-              f"sent {grid[r][c]['userEnteredValue']['stringValue'][:60]!r}, "
-              f"live {live(r, c)[:60]!r}")
-    if not control_fires:
-        print("    FAIL the read-back control did not fire, so this comparison is "
-              "not trustworthy")
-        return True
-    return bool(differing)
+    grid_tab, summary_tab = tabs_for(project)
+    failed = False
+    for tab, sent, first in ((grid_tab, grid, 3), (summary_tab, summary, 0)):
+        if sent is None:
+            continue
+        got = svc.spreadsheets().values().get(
+            spreadsheetId=sid, range=f"{a1_tab(tab)}!A1:ZZ{len(sent)}",
+            valueRenderOption="UNFORMATTED_VALUE").execute().get("values", [])
+        differing = differing_cells(sent, got, first)
+        # The control: change the first compared cell in a COPY of the live values.
+        probe_r, probe_c = first, 0
+        altered = [list(r) for r in got]
+        while len(altered) <= probe_r:
+            altered.append([])
+        while len(altered[probe_r]) <= probe_c:
+            altered[probe_r].append("")
+        altered[probe_r][probe_c] = f"{_live(got, probe_r, probe_c)} [read-back control]"
+        control_fires = (probe_r, probe_c) in differing_cells(sent, altered, first)
+        print(f"    read back {tab!r}: {len(sent) - first} rows, {len(differing)} cell(s) "
+              f"differ (control fires: {control_fires})")
+        for r, c in differing[:5]:
+            print(f"      row {r + 1} col {c + 1}: sent {str(_sent(sent[r][c]))[:60]!r}, "
+                  f"live {str(_live(got, r, c))[:60]!r}")
+        if not control_fires:
+            print(f"    FAIL the read-back control did not fire on {tab!r}, so this "
+                  f"comparison is not trustworthy")
+            failed = True
+        failed = failed or bool(differing)
+    return failed
 
 
 def do_status(project):
+    project.offline = True
     rows = project.rows
     counts = {}
     for row in rows:
@@ -1527,15 +1734,18 @@ per-project copies cannot drift apart. Define
 here overrides the skill's, and an out-of-date one silently writes the wrong columns.
 """
 
-# The module in this directory. It must hold ROWS, DATES and PHASE_BUDGET.
+# The module in this directory. It must hold ROWS and DATES, and may hold PHASE_BUDGET
+# (optional; without it the budget column is blank).
 #
 #   ROWS  = [(section, feature, what, status, phase, effort, where, depends), ...]
 #   DATES = {{feature: "YYYY-MM-DD" or ""}}
+#   PHASE_BUDGET = {{phase: "3-5 days"}}
 #
 # Eight fields per row, and the date lives in DATES rather than inline. A MISSING entry in
 # DATES is an ERROR, not a blank: blank already means "nothing has happened to this row",
 # so letting an unlisted feature render as one would report shipped work as untouched.
-DATA_MODULE = "build_plan_status_xlsx.py"
+# The effort field is days, a range ("1.5-2 days"), sessions, hours or weeks.
+DATA_MODULE = "plan_status_rows.py"
 
 # The plan this table tracks, in this directory. Coverage is measured against its numbered
 # headings.
@@ -1615,6 +1825,9 @@ def main() -> None:
     parser.add_argument("--status", action="store_true")
     parser.add_argument("--force", action="store_true",
                         help="rewrite even over columns this run does not write")
+    parser.add_argument("--adopt", action="store_true",
+                        help="claim a Sheet marked as another project's, for a project "
+                             "that was renamed; without it such a Sheet is refused")
     args, _ = parser.parse_known_args()
 
     if args.repo and not args.project:
@@ -1625,9 +1838,7 @@ def main() -> None:
             raise SystemExit(NO_SHEET_FOR_REPO)
         args.project = found
         if hand_updated(args.repo, found):
-            print(f"{args.repo} is tracked by {found}'s Sheet with HAND-UPDATED rows: set "
-                  f"the rows this release moved in {PROJECTS / found / 'plan_status_rows.py'}"
-                  f" (status and date), then push again.")
+            print(hand_updated_message(args.repo, found))
     if not args.project:
         parser.error("give --project or --repo")
 

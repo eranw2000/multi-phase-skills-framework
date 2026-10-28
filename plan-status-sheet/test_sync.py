@@ -78,6 +78,404 @@ def row(section="4.1", feature="A feature", status="Live", date="2026-01-01",
             "3-5 days", effort, "stands here"]
 
 
+# ------------------------------------------------------------- a fake Sheets service
+#
+# It records every request and answers reads from what was written, the way the real
+# API does with UNFORMATTED_VALUE: numbers come back as numbers and trailing empty
+# cells are left off. Nothing here reaches Google.
+
+class _Exec:
+    def __init__(self, fn):
+        self.fn = fn
+
+    def execute(self):
+        return self.fn()
+
+
+def _sent_value(c):
+    uv = c["userEnteredValue"]
+    if "numberValue" in uv:
+        n = uv["numberValue"]
+        return int(n) if float(n).is_integer() else n
+    return uv["stringValue"]
+
+
+def _tab_of(a1):
+    tab = a1.rsplit("!", 1)[0]
+    if tab.startswith("'") and tab.endswith("'"):
+        tab = tab[1:-1].replace("''", "'")
+    return tab
+
+
+class FakeSvc:
+    def __init__(self, markers=(), tabs=("Plan status", "Summary"), read_error=None,
+                 meta_error=None, corrupt=None):
+        self.markers = list(markers)
+        self.tabs = {name: i for i, name in enumerate(tabs)}
+        self.read_error, self.meta_error, self.corrupt = read_error, meta_error, corrupt
+        self.batches, self.ranges, self.written = [], [], {}
+
+    def spreadsheets(self):
+        svc = self
+
+        class Values:
+            def get(self, spreadsheetId, range, **kw):  # noqa: A002 - the API's name
+                return _Exec(lambda: svc.read(range))
+
+        class Sheets:
+            def get(self, spreadsheetId, **kw):
+                return _Exec(svc.meta)
+
+            def batchUpdate(self, spreadsheetId, body):
+                return _Exec(lambda: svc.batch(body))
+
+            def values(self):
+                return Values()
+        return Sheets()
+
+    def meta(self):
+        if self.meta_error:
+            raise self.meta_error
+        return {"sheets": [{"properties": {"title": t, "sheetId": i}}
+                           for t, i in self.tabs.items()],
+                "developerMetadata": [{"metadataKey": sync.MARKER_KEY, "metadataValue": m,
+                                       "location": {"spreadsheet": True}}
+                                      for m in self.markers]}
+
+    def batch(self, body):
+        self.batches.append(body)
+        for req in body["requests"]:
+            if "updateCells" in req:
+                uc = req["updateCells"]
+                self.written[uc["start"]["sheetId"]] = [
+                    [_sent_value(c) for c in r["values"]] for r in uc["rows"]]
+        return {"replies": []}
+
+    def read(self, a1):
+        self.ranges.append(a1)
+        tab = _tab_of(a1)
+        rows = [list(r) for r in self.written.get(self.tabs.get(tab), [])]
+        if a1.endswith("A4:ZZ4"):
+            if self.read_error:
+                raise self.read_error
+            return {"values": rows[3:4]} if len(rows) > 3 else {}
+        if self.corrupt and self.corrupt[0] == tab:
+            _, r, c = self.corrupt
+            rows[r][c] = "SOMEBODY CHANGED THIS"
+        for r in rows:
+            while r and r[-1] == "":
+                r.pop()
+        return {"values": rows}
+
+    def wrote_cells(self):
+        return any("updateCells" in req for b in self.batches for req in b["requests"])
+
+
+def _demo_project(root, name="demo-project", data_extra="", config_extra="",
+                  sid="SID_DEMO"):
+    import json as _json
+    demo = root / name
+    demo.mkdir()
+    (demo / sync.CONFIG_NAME).write_text(
+        'DATA_MODULE = "rows.py"\nPLAN = None\nDOC_TITLE = "demo: plan status"\n'
+        'PINNED_CELL = ("A feature", 3, "Live")\nREPO = None\n' + config_extra)
+    (demo / "rows.py").write_text(
+        'ROWS = [("4.1", "A feature", "does a thing", "Live", "Phase 1", "1.5-2 days",\n'
+        '         "stands here", "None")]\n'
+        'DATES = {"A feature": "2026-01-01"}\n' + data_extra)
+    if sid:
+        (demo / sync.ID_NAME).write_text(_json.dumps({"spreadsheetId": sid}))
+    project = sync.Project(str(demo))
+    project.active = project.resolve_initiative(None)
+    return project
+
+
+def _push(project, svc, *argv):
+    """push() against a fake service. (outcome, printed text)."""
+    import contextlib
+    import io
+    saved_service, saved_argv = sync.service, list(sys.argv)
+    sync.service = lambda: svc
+    sys.argv = [sys.argv[0], *argv]
+    out = io.StringIO()
+    try:
+        with contextlib.redirect_stdout(out):
+            outcome = sync.push(project)
+    except SystemExit as e:
+        outcome = f"exit: {e}"
+    finally:
+        sync.service, sys.argv = saved_service, saved_argv
+    return outcome, out.getvalue()
+
+
+def fix_round_checks():
+    """Run the checks below; a crash is recorded as a FAIL naming the section it hit,
+    so a missing feature reads as red rather than ending the run."""
+    try:
+        _fix_round_body()
+    except Exception as e:  # noqa: BLE001 - the failure being guarded is a crash
+        FAILS.append(f"fix-round checks crashed: {type(e).__name__}: {e}")
+        print(f"  FAIL fix-round checks crashed: {type(e).__name__}: {e}")
+
+
+def _fix_round_body():
+    import stat
+    import tempfile
+    try:
+        from googleapiclient.errors import HttpError
+        from google.auth.exceptions import RefreshError
+    except ImportError:
+        print("\n  SKIP the fake-service checks: google-api-python-client is not installed")
+        HttpError = RefreshError = None
+
+    print("\n=== effort cells: ranges parse, unknown units fail the check ===")
+    check("a range counts its lower end", sync.effort_days("1.5-2 days"), (1.5, True))
+    check("'3 to 5 days' counts 3", sync.effort_days("3 to 5 days"), (3.0, True))
+    check("hours are not days", sync.effort_days("2 hours"), (0.25, True))
+    check("a week is five days", sync.effort_days("1 week"), (5.0, True))
+    check("a session counts as a day", sync.effort_days("2 sessions"), (2.0, True))
+    check("text that starts with no number is not counted, and is not an error",
+          sync.effort_days("unknown"), (None, True))
+    check("control: an unknown unit is an error", sync.effort_days("2 fortnights"),
+          (None, False))
+    report = FakeReport()
+    sync.check_schema(FakeProject([row(effort="2 fortnights")]), report)
+    check("check_schema fails an effort it cannot read",
+          any("effort" in f for f in report.failures), True)
+    report = FakeReport()
+    sync.check_schema(FakeProject([row(effort="1.5-2 days")]), report)
+    check("control: a range passes check_schema", report.failures, [])
+    _, _, remaining, *_ = sync.summary_rows(
+        FakeProject([row(status="Not started", effort="1.5-2 days")]))
+    check("summary_rows reads a range instead of crashing", remaining, 1.5)
+
+    print("\n=== PHASE_BUDGET is optional ===")
+    shim = type("D", (), {"ROWS": [("1", "F", "w", "Live", "Phase 1", "1 day", "x", "None")],
+                          "DATES": {"F": ""}})
+    try:
+        got = sync.default_sheet_rows(shim, "rows.py")[0][7]
+    except AttributeError as e:
+        got = f"AttributeError: {e}"
+    check("a data module with no PHASE_BUDGET maps to a blank budget cell", got, "")
+
+    print("\n=== the scaffold and the --repo message name no owner file ===")
+    scaf = sync.SCAFFOLD.format(title="t")
+    check("the scaffold's DATA_MODULE default is the neutral plan_status_rows.py",
+          'DATA_MODULE = "plan_status_rows.py"' in scaf, True)
+    check("it says PHASE_BUDGET is optional", "optional" in scaf.split("DATA_MODULE =")[0]
+          and "PHASE_BUDGET" in scaf, True)
+    with tempfile.TemporaryDirectory() as tmp:
+        demo = Path(tmp) / "hand"
+        demo.mkdir()
+        (demo / sync.CONFIG_NAME).write_text('DATA_MODULE = "custom_rows.py"\n')
+        saved = sync.PROJECTS
+        sync.PROJECTS = Path(tmp)
+        try:
+            message = sync.hand_updated_message("/some/repo", "hand")
+        finally:
+            sync.PROJECTS = saved
+    check("the --repo message names the config's own DATA_MODULE",
+          "custom_rows.py" in message, True)
+    check("control: it does not name a file the config never loads",
+          "plan_status_rows.py" in message, False)
+
+    print("\n=== PLAN_STATUS_PROJECTS moves the projects folder ===")
+    saved_env = os.environ.get("PLAN_STATUS_PROJECTS")
+    with tempfile.TemporaryDirectory() as tmp:
+        os.environ["PLAN_STATUS_PROJECTS"] = tmp
+        try:
+            again = importlib.util.module_from_spec(
+                importlib.util.spec_from_file_location("sync2", HERE / "sync.py"))
+            again.__spec__.loader.exec_module(again)
+            got = again.PROJECTS
+        finally:
+            if saved_env is None:
+                os.environ.pop("PLAN_STATUS_PROJECTS", None)
+            else:
+                os.environ["PLAN_STATUS_PROJECTS"] = saved_env
+        check("the variable sets the folder --repo searches", got, Path(tmp))
+    check("control: unset, it is the default folder",
+          sync.PROJECTS if saved_env is None else Path.home() / ".claude" / "projects",
+          Path.home() / ".claude" / "projects")
+
+    print("\n=== the token check comes before the Google libraries ===")
+    blocked = ("googleapiclient", "googleapiclient.discovery", "google.oauth2",
+               "google.oauth2.credentials")
+    saved_mods = {m: sys.modules.get(m, "absent") for m in blocked}
+    saved_token = sync.TOKEN
+    for m in blocked:
+        sys.modules[m] = None
+    sync.TOKEN = str(Path(tempfile.gettempdir()) / "no-such-plan-status-token.json")
+    try:
+        sync.service()
+        outcome = "returned"
+    except SystemExit as e:
+        outcome = "token message" if "no Sheets token" in str(e) else f"exit: {e}"
+    except ImportError:
+        outcome = "ImportError"
+    finally:
+        sync.TOKEN = saved_token
+        for m, v in saved_mods.items():
+            if v == "absent":
+                sys.modules.pop(m, None)
+            else:
+                sys.modules[m] = v
+    check("a missing token says so even without the libraries", outcome, "token message")
+
+    print("\n=== mint_token writes the token readable only by its owner ===")
+    mspec = importlib.util.spec_from_file_location("mint_token", HERE / "mint_token.py")
+    mint = importlib.util.module_from_spec(mspec)
+    try:
+        mspec.loader.exec_module(mint)
+        writer = getattr(mint, "write_private", None)
+    except ImportError as e:
+        writer = None
+        print(f"      (mint_token did not import: {type(e).__name__})")
+    with tempfile.TemporaryDirectory() as tmp:
+        target = Path(tmp) / "token.json"
+        old = os.umask(0)
+        try:
+            if writer:
+                writer(str(target), "new")
+                fresh = stat.S_IMODE(target.stat().st_mode)
+                target.chmod(0o644)
+                writer(str(target), "newer")
+                replaced = (stat.S_IMODE(target.stat().st_mode), target.read_text())
+            else:
+                fresh, replaced = None, None
+        finally:
+            os.umask(old)
+    check("a new token file is 0600 even under umask 0", fresh, 0o600)
+    check("control: replacing a 0644 file leaves it 0600 with the new content",
+          replaced, (0o600, "newer"))
+
+    print("\n=== --check stays offline when SOURCES is declared ===")
+    calls = []
+    saved_run = sync._run
+    with tempfile.TemporaryDirectory() as tmp:
+        sync._run = lambda args, cwd=None: (calls.append(args[0]), (1, ""))[1]
+        try:
+            project = _demo_project(
+                Path(tmp), data_extra='SOURCES = {"A feature": "feat/a"}\n',
+                config_extra=f"REPO = {tmp!r}\n")
+            import contextlib
+            import io
+            with contextlib.redirect_stdout(io.StringIO()):
+                sync.do_check(project)
+                offline = list(calls)
+                sync.do_check(project, online=True)
+        finally:
+            sync._run = saved_run
+    check("an offline check runs no git and no gh", offline, [])
+    check("control: the online check does look them up", len(calls) > 0, True)
+
+    if HttpError is None:
+        return
+    root_tmp = tempfile.TemporaryDirectory()
+    root = Path(root_tmp.name)
+    saved_projects = sync.PROJECTS
+    sync.PROJECTS = root
+    try:
+        project = _demo_project(root)
+
+        print("\n=== a wrong Sheet id is refused before anything is written ===")
+        svc = FakeSvc(markers=["another-project"])
+        outcome, _ = _push(project, svc)
+        check("a Sheet marked as another project's is refused",
+              "another-project" in str(outcome) and str(outcome).startswith("exit"), True)
+        check("and nothing was written to it", svc.batches, [])
+        svc = FakeSvc(markers=[project.name])
+        outcome, _ = _push(project, svc)
+        check("control: a Sheet marked as this project's is written", outcome, 0)
+        svc = FakeSvc()
+        outcome, printed = _push(project, svc)
+        created = [r["createDeveloperMetadata"]["developerMetadata"]
+                   for b in svc.batches for r in b["requests"]
+                   if "createDeveloperMetadata" in r]
+        check("an unmarked Sheet is written and marked as this project's",
+              (outcome, [(m["metadataKey"], m["metadataValue"]) for m in created]),
+              (0, [(sync.MARKER_KEY, project.name)]))
+        svc = FakeSvc(markers=["another-project"])
+        outcome, _ = _push(project, svc, "--adopt")
+        claimed = [r for b in svc.batches for r in b["requests"]
+                   if "deleteDeveloperMetadata" in r or "createDeveloperMetadata" in r]
+        check("--adopt claims a Sheet marked as another project's",
+              (outcome, len(claimed)), (0, 2))
+        import json as _json
+        other = root / "other-project"
+        other.mkdir()
+        (other / sync.ID_NAME).write_text(_json.dumps({"spreadsheetId": "SID_DEMO"}))
+        svc = FakeSvc()
+        outcome, _ = _push(project, svc)
+        check("an id another local project also records is refused",
+              ("other-project" in str(outcome), svc.batches), (True, []))
+        (other / sync.ID_NAME).write_text(_json.dumps(
+            {"initiatives": {"x": {"spreadsheetId": "SID_ELSE"}}}))
+        svc = FakeSvc()
+        outcome, _ = _push(project, svc)
+        check("control: a different id in the other project is not a clash", outcome, 0)
+
+        print("\n=== a failed column read is a refusal, not 'no strangers' ===")
+
+        class Resp(dict):
+            status, reason = 503, "busy"
+        svc = FakeSvc(markers=[project.name], read_error=HttpError(Resp(), b"busy"))
+        outcome, printed = _push(project, svc)
+        check("the push refuses and rewrites nothing", (outcome, svc.wrote_cells()), (1, False))
+        svc = FakeSvc(markers=[project.name], read_error=HttpError(Resp(), b"busy"))
+        outcome, _ = _push(project, svc, "--force")
+        check("control: --force goes ahead", (outcome, svc.wrote_cells()), (0, True))
+        check("a tab name with an apostrophe is quoted by doubling it",
+              sync.a1_tab("Bob's tab"), "'Bob''s tab'")
+        quoted = _demo_project(root, name="quoted", sid="SID_Q",
+                               config_extra='GRID_TAB = "Bob\'s tab"\n')
+        svc = FakeSvc(markers=["quoted"], tabs=("Bob's tab", "Summary"))
+        outcome, _ = _push(quoted, svc)
+        check("the push reads and writes the quoted tab",
+              (outcome, "'Bob''s tab'!A4:ZZ4" in svc.ranges), (0, True))
+
+        print("\n=== an expired token says how to recover ===")
+        svc = FakeSvc(meta_error=RefreshError("invalid_grant: Token has been expired"))
+        outcome, _ = _push(project, svc)
+        check("RefreshError becomes a message naming mint_token.py --force",
+              "mint_token.py" in str(outcome) and "--force" in str(outcome), True)
+        svc = FakeSvc(meta_error=ValueError("something else"))
+        try:
+            _push(project, svc)
+            other_error = "swallowed"
+        except ValueError:
+            other_error = "raised"
+        check("control: an unrelated error is not dressed up as an expired token",
+              other_error, "raised")
+
+        print("\n=== the read-back compares both tabs, and its control can fail ===")
+        svc = FakeSvc(markers=[project.name])
+        outcome, printed = _push(project, svc)
+        check("an exact echo reads back clean", outcome, 0)
+        merges = [r["mergeCells"]["range"]["startColumnIndex"]
+                  for b in svc.batches for r in b["requests"] if "mergeCells" in r]
+        check("every merge starts right of the two frozen columns",
+              (len(merges) > 0, min(merges) >= 2), (True, True))
+        svc = FakeSvc(markers=[project.name], corrupt=("Plan status", 4, 2))
+        outcome, _ = _push(project, svc)
+        check("a changed grid cell fails the read-back", outcome, 1)
+        svc = FakeSvc(markers=[project.name], corrupt=("Summary", 1, 0))
+        outcome, _ = _push(project, svc)
+        check("a changed Summary cell fails the read-back", outcome, 1)
+        saved_diff = sync.differing_cells
+        sync.differing_cells = lambda *a, **k: []
+        try:
+            svc = FakeSvc(markers=[project.name], corrupt=("Plan status", 4, 2))
+            outcome, printed = _push(project, svc)
+        finally:
+            sync.differing_cells = saved_diff
+        check("control: a comparison that never sees a difference is caught",
+              (outcome, "control did not fire" in printed), (1, True))
+    finally:
+        sync.PROJECTS = saved_projects
+        root_tmp.cleanup()
+
+
 def main():
     print("=== section numbers, including ranges and compound cells ===")
     check("a plain number", sync.covered_numbers(["7"]), {"7"})
@@ -594,6 +992,8 @@ def main():
     sync.check_released_prs(proj, rep, merged=None, lister=lambda repo: None)
     check("a lookup that could not answer warns and never fails (unknown is not absence)",
           (len(rep.failures), len(rep.warnings)), (0, 1))
+
+    fix_round_checks()
 
     print()
     print(f"{len(FAILS)} FAILED" if FAILS else "ALL CHECKS PASSED")
