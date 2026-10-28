@@ -26,10 +26,13 @@ there is lost at the next release and nobody sees it go. Edit the rows in the pr
 
 **A push writes only to its own project's Sheet.** Every Sheet it writes carries a hidden
 marker naming the project (Sheets developer metadata), and a push refuses a Sheet marked
-as another project's, or an id another local project also records, before it writes
-anything. That is what stops a `plan_status_gsheet.json` copied from another project from
-overwriting that project's table. A Sheet with no marker yet is marked on its first push.
-A project that was renamed claims its own Sheet once with `--adopt`.
+as another project's before it writes anything. That is what stops a
+`plan_status_gsheet.json` copied from another project from overwriting that project's
+table. The marker is read first, so the real owner is never refused because another
+folder holds a copy of its id. A Sheet with no marker yet is marked on its first push,
+unless another local project also records its id: then the push stops and asks which
+project owns it. A project that was renamed, or the owner of such an unmarked Sheet,
+claims it once with `--adopt`.
 
 ## The checks, and why each exists
 

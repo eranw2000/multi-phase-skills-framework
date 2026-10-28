@@ -1187,18 +1187,29 @@ def check_identity(project, sid, meta, adopt=False):
 
     Returns the marker requests the push must send: none when the Sheet is already
     marked as this project's, a create when it carries no marker, and with `adopt` a
-    delete plus a create that moves the Sheet to this project."""
+    delete plus a create that moves the Sheet to this project.
+
+    The Sheet's own mark is read first: it names the owner, so a copied id in another
+    folder cannot refuse the real owner. The local copy check decides only for a Sheet
+    with no mark yet."""
     holders = other_local_holders(project, sid)
-    if holders and not adopt:
-        raise SystemExit(
-            f"REFUSING: Sheet {sid} is also recorded by {', '.join(holders)}. "
-            f"{project.id_file} was probably copied from there. Remove the id from "
-            f"{project.id_file.name} and run --setup to create this project's own Sheet.")
     owners = sheet_owners(meta)
     create = {"createDeveloperMetadata": {"developerMetadata": {
         "metadataKey": MARKER_KEY, "metadataValue": project.name,
         "location": {"spreadsheet": True}, "visibility": "DOCUMENT"}}}
-    if owners and project.name not in owners:
+    if owners and project.name in owners:
+        if holders:
+            print(f"    note: {', '.join(holders)} also records this Sheet's id; the "
+                  f"Sheet is marked as {project.name!r}'s, so that copy will be refused")
+        return []
+    if not owners and holders and not adopt:
+        raise SystemExit(
+            f"REFUSING: Sheet {sid} carries no owner mark yet and is also recorded by "
+            f"{', '.join(holders)}, so it is not clear whose it is. If it is this "
+            f"project's Sheet, run again with --adopt to mark it as {project.name!r}'s. "
+            f"If it belongs to {holders[0]!r}, remove the id from {project.id_file} and "
+            f"run --setup to create this project's own Sheet.")
+    if owners:
         if not adopt:
             raise SystemExit(
                 f"REFUSING: Sheet {sid} belongs to project {owners[0]!r}, not "
@@ -1207,8 +1218,6 @@ def check_identity(project, sid, meta, adopt=False):
         print(f"    --adopt: moving the Sheet from {owners[0]!r} to {project.name!r}")
         return [{"deleteDeveloperMetadata": {"dataFilter": {
             "developerMetadataLookup": {"metadataKey": MARKER_KEY}}}}, create]
-    if owners:
-        return []
     print(f"    marking the Sheet as {project.name!r}'s, so a copied id cannot reach it")
     return [create]
 

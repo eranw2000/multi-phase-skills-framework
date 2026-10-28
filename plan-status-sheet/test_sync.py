@@ -409,6 +409,21 @@ def _fix_round_body():
         outcome, _ = _push(project, svc)
         check("an id another local project also records is refused",
               ("other-project" in str(outcome), svc.batches), (True, []))
+        check("and the refusal offers --adopt, not only a new Sheet",
+              "--adopt" in str(outcome), True)
+        svc = FakeSvc(markers=[project.name])
+        outcome, printed = _push(project, svc)
+        check("the real owner is written although another folder holds a copied id",
+              (outcome, "other-project" in printed), (0, True))
+        svc = FakeSvc(markers=["other-project"])
+        outcome, _ = _push(project, svc)
+        check("control: the copy holder is still refused by the owner mark",
+              ("belongs to project 'other-project'" in str(outcome), svc.batches),
+              (True, []))
+        svc = FakeSvc()
+        outcome, _ = _push(project, svc, "--adopt")
+        check("--adopt marks an unmarked Sheet another folder also records",
+              outcome, 0)
         (other / sync.ID_NAME).write_text(_json.dumps(
             {"initiatives": {"x": {"spreadsheetId": "SID_ELSE"}}}))
         svc = FakeSvc()
