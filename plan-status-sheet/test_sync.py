@@ -422,8 +422,20 @@ def _fix_round_body():
               (True, []))
         svc = FakeSvc()
         outcome, _ = _push(project, svc, "--adopt")
+        created = [r["createDeveloperMetadata"]["developerMetadata"]
+                   for b in svc.batches for r in b["requests"]
+                   if "createDeveloperMetadata" in r]
         check("--adopt marks an unmarked Sheet another folder also records",
-              outcome, 0)
+              (outcome, [(m["metadataKey"], m["metadataValue"], m["location"],
+                          m["visibility"]) for m in created]),
+              (0, [(sync.MARKER_KEY, project.name, {"spreadsheet": True}, "DOCUMENT")]))
+        for odd in ("[]", '{"initiatives": []}', '{"initiatives": {"x": "text"}}'):
+            (other / sync.ID_NAME).write_text(odd)
+            svc = FakeSvc(markers=[project.name])
+            outcome, _ = _push(project, svc)
+            check(f"an odd id file elsewhere ({odd}) does not stop the marked owner",
+                  outcome, 0)
+        (other / sync.ID_NAME).write_text(_json.dumps({"spreadsheetId": "SID_DEMO"}))
         (other / sync.ID_NAME).write_text(_json.dumps(
             {"initiatives": {"x": {"spreadsheetId": "SID_ELSE"}}}))
         svc = FakeSvc()

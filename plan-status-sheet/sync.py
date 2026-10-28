@@ -1174,9 +1174,13 @@ def other_local_holders(project, sid):
             data = json.loads(idf.read_text())
         except (OSError, ValueError):
             continue
+        if not isinstance(data, dict):
+            continue
+        initiatives = data.get("initiatives")
         ids = {data.get("spreadsheetId")} | {
-            (v or {}).get("spreadsheetId")
-            for v in (data.get("initiatives") or {}).values()}
+            v.get("spreadsheetId")
+            for v in (initiatives.values() if isinstance(initiatives, dict) else ())
+            if isinstance(v, dict)}
         if sid in ids:
             out.append(idf.parent.name)
     return out
@@ -1192,8 +1196,8 @@ def check_identity(project, sid, meta, adopt=False):
     The Sheet's own mark is read first: it names the owner, so a copied id in another
     folder cannot refuse the real owner. The local copy check decides only for a Sheet
     with no mark yet."""
-    holders = other_local_holders(project, sid)
     owners = sheet_owners(meta)
+    holders = other_local_holders(project, sid)
     create = {"createDeveloperMetadata": {"developerMetadata": {
         "metadataKey": MARKER_KEY, "metadataValue": project.name,
         "location": {"spreadsheet": True}, "visibility": "DOCUMENT"}}}
