@@ -20,7 +20,7 @@
 
         <!-- plan-gate inline -->
         <mxCell id="pg" value="plan-gate&#10;gate the approved plan before execution" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="640" y="250" width="240" height="70" as="geometry"/></mxCell>
-        <mxCell id="pgn" value="plan-auditor agent + ExitPlanMode hook&#10;every weak spot Fixed or Accepted" style="rounded=1;fillColor=#f3eefb;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=2;dashed=1;" vertex="1" parent="1"><mxGeometry x="640" y="380" width="240" height="60" as="geometry"/></mxCell>
+        <mxCell id="pgn" value="plan-auditor agent + plan-gate-reminder hook (fires on ExitPlanMode)&#10;every weak spot Fixed or Accepted&#10;optional: /pause-after-planning stops here to switch model" style="rounded=1;fillColor=#f3eefb;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=2;dashed=1;" vertex="1" parent="1"><mxGeometry x="630" y="380" width="260" height="100" as="geometry"/></mxCell>
 
         <!-- tdd -->
         <mxCell id="p2" value="tdd&#10;red-green-refactor per slice&#10;+ suite-count / mutation / no-shell-append checks" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;html=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="940" y="245" width="240" height="95" as="geometry"/></mxCell>

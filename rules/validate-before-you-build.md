@@ -15,3 +15,5 @@ When you build one, write down two things before you trust its answer:
 - **What decides pass or fail, frozen before it runs.** Say what the expected result is and where that expectation comes from, and do not change it after you see the output.
 
 Ask the question once while gating the plan (`/plan-gate` in this pack), not after the build has started.
+
+The `build-a-poc` skill in this pack holds the full procedure: the gate, the questions to write down first, the cheapest medium that answers them, and the hand-off.

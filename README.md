@@ -22,7 +22,9 @@ Supporting skills used across the chain:
 - **grill-me** — adversarial interview to stress-test a plan, design, or doc before committing to it. Based on the grill-me skill by Matt Pocock.
 - **plan-gate** — pre-execution checkpoint on an approved plan (for example one you just approved in Claude Code's plan mode): surface every weak spot and drive each one to fixed or explicitly accepted with the user, one at a time, before any code is written. Spawns the bundled `plan-auditor` agent for the read-only audit; an optional hook fires the gate automatically the moment you leave plan mode. Use `grill-me` to stress-test an early idea; `plan-gate` is for a plan that is already approved.
 - **`/pause-after-planning`**: optional command for anyone who plans and builds on different models. Run it during a planning session and it arms a stop, so Claude finishes planning and the gate, then hands off and waits for you to switch the model instead of rolling straight into implementation. See [Model routing](#model-routing).
+- **build-a-poc**: decide during planning whether a throwaway prototype is worth building, then build one that answers one to three written questions and nothing more. It picks the cheapest medium that answers them, from asking the owner up to a tracer bullet in the real stack, and ends by listing what the prototype could not validate, so each item becomes a conformance check in the real plan. `plan-auditor` and the plan-gate hook point to it.
 - **init-project** — seed a project `CLAUDE.md` for a data/automation project from its description and files.
+- **plan-status-sheet**: keep a project's plan status in one Google Sheet with a link that never changes. It checks that every numbered plan section has a row or a written reason, that every date is a real past date, and that the shared columns are intact, then rewrites the Sheet and reads it back. `--check` runs offline; pushing needs your own Google OAuth client, set up once as its `SKILL.md` describes.
 - **todo** — persistent per-project `TODO.md` with a cross-project index. Other skills hand deferred work to it.
 - **save-context** — end-of-session save into the project `CLAUDE.md` and memory.
 - **close-session** — save-context plus teardown of resources this session started.
@@ -41,7 +43,7 @@ for d in multi-phase-skills-framework/*/; do
 done
 ```
 
-`tdd` and `todo` ship with companion files next to their `SKILL.md` (reference notes and helper scripts); keep each skill's directory intact when you copy it.
+`tdd`, `todo` and `plan-status-sheet` ship with companion files next to their `SKILL.md` (reference notes and helper scripts); keep each skill's directory intact when you copy it.
 
 ### plan-gate companions (agent, hook, command)
 
