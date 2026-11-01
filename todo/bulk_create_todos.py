@@ -18,6 +18,11 @@ Usage:
 """
 
 import argparse
+import sys
+# Read and write UTF-8 on every OS: the Windows default code page misreads it.
+for _stream in (sys.stdin, sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
 import datetime
 import re
 import sys
@@ -26,7 +31,7 @@ from pathlib import Path
 PROJECTS_DIR = Path.home() / ".claude" / "projects"
 # The cross-project index lives in the dash-encoded home path
 # (e.g. /Users/username -> "-Users-username"); derive it so this works on any machine.
-INDEX_DIR = "-" + str(Path.home()).strip("/").replace("/", "-")
+INDEX_DIR = re.sub(r"[^A-Za-z0-9]", "-", str(Path.home()))
 
 # CLAUDE.md headings whose body we lift into the Active bucket as seed items.
 # Word-boundary anchored so "## What NOT to do" doesn't match on a bare "to do".
@@ -192,7 +197,7 @@ def main():
         if args.dry_run:
             print(f"WOULD CREATE  {p.name}  ({tag})")
         else:
-            todo_path.write_text(content, encoding="utf-8")
+            todo_path.write_bytes((content).encode("utf-8"))
             print(f"CREATED       {p.name}  ({tag})")
 
     verb = "Would create" if args.dry_run else "Created"

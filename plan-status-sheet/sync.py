@@ -17,6 +17,11 @@ deliberately having none.
     sync.py --project <name> --status   print the link and the headline counts.
 """
 import argparse
+import sys
+# Read and write UTF-8 on every OS: the Windows default code page misreads it.
+for _stream in (sys.stdin, sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
 import datetime
 import importlib.util
 import json
@@ -120,7 +125,7 @@ def _repo_identity(path) -> Path:
     p = Path(path).expanduser().resolve()
     try:
         out = subprocess.run(["git", "-C", str(p), "rev-parse", "--path-format=absolute",
-                              "--git-common-dir"], capture_output=True, text=True, timeout=10)
+                              "--git-common-dir"], capture_output=True, text=True, timeout=10, encoding="utf-8", errors="replace")
     except (OSError, subprocess.SubprocessError):
         return p
     common = out.stdout.strip()
@@ -173,7 +178,7 @@ def literal_from_source(source: Path, varname: str, namespace: dict):
     like a design choice.
     """
     import ast
-    tree = ast.parse(source.read_text())
+    tree = ast.parse(source.read_text(encoding="utf-8"))
     found = []
     for node in ast.walk(tree):
         if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Call):
@@ -205,7 +210,7 @@ def plan_title(path: Path):
     unusable. The title is what a person recognises.
     """
     try:
-        found = PLAN_TITLE.search(path.read_text())
+        found = PLAN_TITLE.search(path.read_text(encoding="utf-8"))
     except OSError:
         return None
     return found.group(1) if found else None
@@ -214,7 +219,7 @@ def plan_title(path: Path):
 def plan_continues(path: Path):
     """The plan this one supersedes, as a resolved Path, or None."""
     try:
-        found = CONTINUES.search(path.read_text())
+        found = CONTINUES.search(path.read_text(encoding="utf-8"))
     except OSError:
         return None
     if not found:
@@ -296,7 +301,7 @@ def _run(args, cwd=None):
     import subprocess
     try:
         done = subprocess.run(args, cwd=cwd, capture_output=True, text=True,
-                              timeout=GIT_TIMEOUT)
+                              timeout=GIT_TIMEOUT, encoding="utf-8", errors="replace")
     except (OSError, subprocess.SubprocessError):
         return -1, ""
     return done.returncode, (done.stdout or "").strip()
@@ -628,7 +633,7 @@ class Project:
     def _ids(self):
         if not self.id_file.is_file():
             return {}
-        return json.loads(self.id_file.read_text())
+        return json.loads(self.id_file.read_text(encoding="utf-8"))
 
     def spreadsheet_id(self, initiative=None):
         """The Sheet id for one initiative.
@@ -662,7 +667,7 @@ class Project:
         else:
             data.setdefault("initiatives", {})[name] = {"spreadsheetId": sheet_id,
                                                         "url": url}
-        self.id_file.write_text(json.dumps(data, indent=2) + "\n")
+        self.id_file.write_bytes((json.dumps(data, indent=2) + "\n").encode("utf-8"))
         return url
 
     def url(self, initiative=None):
@@ -710,7 +715,7 @@ def plan_sections(plan: Path):
     if not plan or not plan.is_file():
         return []
     out = []
-    for line in plan.read_text().splitlines():
+    for line in plan.read_text(encoding="utf-8").splitlines():
         match = SECTION_NUMBER.match(line)
         if match:
             out.append((match.group(1), line.lstrip("#").strip()))
@@ -1171,7 +1176,7 @@ def other_local_holders(project, sid):
         if idf.parent.resolve() == mine:
             continue
         try:
-            data = json.loads(idf.read_text())
+            data = json.loads(idf.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             continue
         if not isinstance(data, dict):
@@ -1429,7 +1434,7 @@ def report_todo_coverage(project, report):
     if not todo.is_file():
         report.note("no TODO.md in this project, so there is nothing to cross-check")
         return
-    text = todo.read_text(errors="replace").lower()
+    text = todo.read_text(errors="replace", encoding="utf-8").lower()
     unfinished = [r for r in project.rows if str(r[3]).strip() != "Live"]
     missing = [r[1] for r in unfinished if str(r[1]).strip().lower() not in text]
     report.count("unfinished rows the TODO does not name", len(missing))
@@ -1808,7 +1813,7 @@ def do_setup(project_name, initiative=None):
         print(f"{config} already exists; leaving it alone.")
     else:
         title = f"{directory.name}: plan status"
-        config.write_text(SCAFFOLD.format(title=title))
+        config.write_bytes((SCAFFOLD.format(title=title)).encode("utf-8"))
         print(f"wrote {config}")
         print("Open it, point DATA_MODULE and PLAN at the right files, and set "
               "PINNED_CELL and REPO. Then run --check.")
