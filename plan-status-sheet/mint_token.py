@@ -15,6 +15,12 @@ of Drive, and it cannot change sharing. Widening a scope later is not free: a to
 scopes are fixed at consent time, so a wider list would need this run again.
 """
 import json
+import sys
+# Read and write UTF-8 on every OS: the Windows default code page misreads it.
+if __name__ == "__main__":
+    for _stream in (sys.stdin, sys.stdout, sys.stderr):
+        if hasattr(_stream, "reconfigure"):
+            _stream.reconfigure(encoding="utf-8", errors="replace")
 import os
 import sys
 import tempfile
@@ -35,7 +41,7 @@ def write_private(path, text):
     fd, tmp = tempfile.mkstemp(dir=os.path.dirname(os.path.abspath(path)),
                                prefix=".token-", suffix=".tmp")
     try:
-        with os.fdopen(fd, "w") as handle:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="") as handle:
             handle.write(text)
         os.replace(tmp, path)
     except BaseException:
@@ -52,7 +58,7 @@ def main() -> None:
     if os.path.isfile(TOKEN) and "--force" not in sys.argv:
         # Refusing beats overwriting. A working token is the thing this script exists to
         # produce, and a re-consent that fails halfway would leave nothing in its place.
-        existing = json.load(open(TOKEN))
+        existing = json.load(open(TOKEN, encoding="utf-8"))
         sys.exit(f"{TOKEN} already exists, scopes {existing.get('scopes')}. "
                  f"Pass --force to replace it, for example when a push says Google "
                  f"refused the saved token.")
@@ -64,7 +70,7 @@ def main() -> None:
     write_private(TOKEN, creds.to_json())
 
     # Print metadata only. A token file's contents never go to a terminal or a log.
-    written = json.load(open(TOKEN))
+    written = json.load(open(TOKEN, encoding="utf-8"))
     print(f"wrote {TOKEN}")
     print(f"granted scopes: {written.get('scopes')}")
     print(f"refresh token present: {bool(written.get('refresh_token'))}")

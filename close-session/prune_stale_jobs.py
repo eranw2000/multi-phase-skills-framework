@@ -29,6 +29,12 @@ USAGE
     python3 prune_stale_jobs.py --older-than 30  # a different window
 """
 import argparse
+import sys
+# Read and write UTF-8 on every OS: the Windows default code page misreads it.
+if __name__ == "__main__":
+    for _stream in (sys.stdin, sys.stdout, sys.stderr):
+        if hasattr(_stream, "reconfigure"):
+            _stream.reconfigure(encoding="utf-8", errors="replace")
 import json
 import re
 import subprocess
@@ -42,7 +48,7 @@ def load_sessions(run=subprocess.run):
     """The session list from `claude agents --json`, or raise RuntimeError."""
     try:
         p = run(["claude", "agents", "--json"], capture_output=True, text=True,
-                timeout=60)
+                timeout=60, encoding="utf-8", errors="replace")
     except FileNotFoundError:
         raise RuntimeError("the `claude` command is not on PATH")
     except subprocess.TimeoutExpired:

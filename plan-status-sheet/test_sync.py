@@ -8,6 +8,12 @@ those two apart.
     python3 test_sync.py
 """
 import ast
+import sys
+# Read and write UTF-8 on every OS: the Windows default code page misreads it.
+if __name__ == "__main__":
+    for _stream in (sys.stdin, sys.stdout, sys.stderr):
+        if hasattr(_stream, "reconfigure"):
+            _stream.reconfigure(encoding="utf-8", errors="replace")
 import collections
 import importlib.util
 import os
@@ -176,15 +182,13 @@ def _demo_project(root, name="demo-project", data_extra="", config_extra="",
     import json as _json
     demo = root / name
     demo.mkdir()
-    (demo / sync.CONFIG_NAME).write_text(
-        'DATA_MODULE = "rows.py"\nPLAN = None\nDOC_TITLE = "demo: plan status"\n'
-        'PINNED_CELL = ("A feature", 3, "Live")\nREPO = None\n' + config_extra)
-    (demo / "rows.py").write_text(
-        'ROWS = [("4.1", "A feature", "does a thing", "Live", "Phase 1", "1.5-2 days",\n'
+    (demo / sync.CONFIG_NAME).write_bytes(('DATA_MODULE = "rows.py"\nPLAN = None\nDOC_TITLE = "demo: plan status"\n'
+        'PINNED_CELL = ("A feature", 3, "Live")\nREPO = None\n' + config_extra).encode("utf-8"))
+    (demo / "rows.py").write_bytes(('ROWS = [("4.1", "A feature", "does a thing", "Live", "Phase 1", "1.5-2 days",\n'
         '         "stands here", "None")]\n'
-        'DATES = {"A feature": "2026-01-01"}\n' + data_extra)
+        'DATES = {"A feature": "2026-01-01"}\n' + data_extra).encode("utf-8"))
     if sid:
-        (demo / sync.ID_NAME).write_text(_json.dumps({"spreadsheetId": sid}))
+        (demo / sync.ID_NAME).write_bytes((_json.dumps({"spreadsheetId": sid})).encode("utf-8"))
     project = sync.Project(str(demo))
     project.active = project.resolve_initiative(None)
     return project
@@ -267,7 +271,7 @@ def _fix_round_body():
     with tempfile.TemporaryDirectory() as tmp:
         demo = Path(tmp) / "hand"
         demo.mkdir()
-        (demo / sync.CONFIG_NAME).write_text('DATA_MODULE = "custom_rows.py"\n')
+        (demo / sync.CONFIG_NAME).write_bytes(('DATA_MODULE = "custom_rows.py"\n').encode("utf-8"))
         saved = sync.PROJECTS
         sync.PROJECTS = Path(tmp)
         try:
@@ -340,7 +344,7 @@ def _fix_round_body():
                 fresh = stat.S_IMODE(target.stat().st_mode)
                 target.chmod(0o644)
                 writer(str(target), "newer")
-                replaced = (stat.S_IMODE(target.stat().st_mode), target.read_text())
+                replaced = (stat.S_IMODE(target.stat().st_mode), target.read_text(encoding="utf-8"))
             else:
                 fresh, replaced = None, None
         finally:
@@ -404,7 +408,7 @@ def _fix_round_body():
         import json as _json
         other = root / "other-project"
         other.mkdir()
-        (other / sync.ID_NAME).write_text(_json.dumps({"spreadsheetId": "SID_DEMO"}))
+        (other / sync.ID_NAME).write_bytes((_json.dumps({"spreadsheetId": "SID_DEMO"})).encode("utf-8"))
         svc = FakeSvc()
         outcome, _ = _push(project, svc)
         check("an id another local project also records is refused",
@@ -430,14 +434,14 @@ def _fix_round_body():
                           m["visibility"]) for m in created]),
               (0, [(sync.MARKER_KEY, project.name, {"spreadsheet": True}, "DOCUMENT")]))
         for odd in ("[]", '{"initiatives": []}', '{"initiatives": {"x": "text"}}'):
-            (other / sync.ID_NAME).write_text(odd)
+            (other / sync.ID_NAME).write_bytes((odd).encode("utf-8"))
             svc = FakeSvc(markers=[project.name])
             outcome, _ = _push(project, svc)
             check(f"an odd id file elsewhere ({odd}) does not stop the marked owner",
                   outcome, 0)
-        (other / sync.ID_NAME).write_text(_json.dumps({"spreadsheetId": "SID_DEMO"}))
-        (other / sync.ID_NAME).write_text(_json.dumps(
-            {"initiatives": {"x": {"spreadsheetId": "SID_ELSE"}}}))
+        (other / sync.ID_NAME).write_bytes((_json.dumps({"spreadsheetId": "SID_DEMO"})).encode("utf-8"))
+        (other / sync.ID_NAME).write_bytes((_json.dumps(
+            {"initiatives": {"x": {"spreadsheetId": "SID_ELSE"}}})).encode("utf-8"))
         svc = FakeSvc()
         outcome, _ = _push(project, svc)
         check("control: a different id in the other project is not a clash", outcome, 0)
@@ -519,8 +523,8 @@ def main():
 
     print("\n=== plan coverage reports a real gap, and stays quiet on a covered plan ===")
     plan = HERE / "_test_plan.md"
-    plan.write_text("# Title\n\n## 1. Background\n\n## 4. Model\n\n### 4.1 Document\n"
-                    "\n### 4.2 Section\n\n## 9. Pipeline\n")
+    plan.write_bytes(("# Title\n\n## 1. Background\n\n## 4. Model\n\n### 4.1 Document\n"
+                    "\n### 4.2 Section\n\n## 9. Pipeline\n").encode("utf-8"))
     try:
         full = FakeProject([row(section="1"), row(section="4.1-4.2"), row(section="9")],
                            plan=plan)
@@ -625,7 +629,7 @@ def main():
 
     print("\n=== no module-level name is bound twice ===")
     names = collections.Counter()
-    for node in ast.parse((HERE / "sync.py").read_text()).body:
+    for node in ast.parse((HERE / "sync.py").read_text(encoding="utf-8")).body:
         if isinstance(node, ast.Assign):
             for target in node.targets:
                 if isinstance(target, ast.Name):
@@ -891,7 +895,7 @@ def main():
 
         def config(name, body):
             (projects / name).mkdir(exist_ok=True)
-            (projects / name / sync.CONFIG_NAME).write_text(body)
+            (projects / name / sync.CONFIG_NAME).write_bytes((body).encode("utf-8"))
 
         saved = sync.PROJECTS
         sync.PROJECTS = projects
@@ -938,7 +942,7 @@ def main():
         sub = wt / "sub"
         sub.mkdir()
         (projects / "Calc").mkdir()
-        (projects / "Calc" / sync.CONFIG_NAME).write_text(f"REPO = {str(repo)!r}\n")
+        (projects / "Calc" / sync.CONFIG_NAME).write_bytes((f"REPO = {str(repo)!r}\n").encode("utf-8"))
         saved = sync.PROJECTS
         sync.PROJECTS = projects
         try:

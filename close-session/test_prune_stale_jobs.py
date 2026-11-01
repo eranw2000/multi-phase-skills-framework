@@ -107,7 +107,7 @@ def test_cli_failures_exit_2():
 
 
 def test_no_delete_path_left():
-    src = open(os.path.join(HERE, 'prune_stale_jobs.py')).read()
+    src = open(os.path.join(HERE, 'prune_stale_jobs.py'), encoding="utf-8").read()
     for word in ('rmtree', 'tarfile', 'state.json', '--apply', 'os.remove'):
         check(f'the script has no {word!r}', word not in src)
 

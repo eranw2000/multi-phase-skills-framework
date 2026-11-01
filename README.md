@@ -33,6 +33,8 @@ A start-of-session briefing is available separately as the `/new-session` comman
 
 ## Install
 
+**On Windows:** install [Git for Windows](https://git-scm.com/downloads/win), so Claude Code runs these scripts in Git Bash. Where a command here says `python3` and your PC has only `python`, use `python`. In WSL, follow the Linux steps.
+
 Each subdirectory here is a self-contained skill (a `SKILL.md` plus any helper files). To use them, copy or symlink the skill directories into your `~/.claude/skills/` so Claude Code picks them up:
 
 ```bash
