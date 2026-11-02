@@ -94,6 +94,8 @@ Re-read every span you edited, re-measure each file, and grep for stale status w
 
 ### 11. Report what was saved
 
+**First, if the `session-idle-guard` hook from claude-maintenance-skills is installed, record the save**, so the hook knows it ran. A save followed from this file makes no Skill call, which is the only save the hook sees on its own, so without this its next Stop forces a second save. Run the hook with `--record-save --session "$CLAUDE_CODE_SESSION_ID"`. It prints `recorded a save for <id> at <time> UTC`; exit 2 means no session id reached it, so say the stamp was not recorded.
+
 Open the report with these five lines, each one sentence in plain words, each naming the file it was saved to (or "none"):
 
 - **Complete:** what this session finished, and which TODO items were marked done
