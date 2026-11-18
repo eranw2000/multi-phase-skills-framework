@@ -13,7 +13,7 @@ Write a PRD for a single feature, then file it as one issue a developer can pick
 
 Reach for `/analyst` (then `/architect`) instead when the work is bigger than one feature, the scope is still fuzzy, you need numbered FR/NFR IDs for client sign-off or compliance, or the "should we even build this" question is still open. Those cases earn the heavier three-document chain (REQUIREMENTS.md, SPEC.md, sliced issues). This skill deliberately does not produce a REQUIREMENTS.md; if you find yourself needing one, that is the signal to switch to `/analyst`.
 
-The single deliverable is a PRD, filed as one issue on the project's tracker (GitHub issues, Linear, Jira, etc.). If the project has no tracker, save it as `PRD.md` at the repo root (or the project data dir when there is no repo) and note in the doc that it should move to a tracker once one exists.
+The single deliverable is a PRD, filed as one issue on the project's tracker (GitHub issues, Linear, Jira, etc.). If the project has no tracker, do not create one: save it as `docs/<initiative>/PRD.md` (under the project data dir when there is no repo) and note in the doc that it should move to a tracker once one exists.
 
 ## Core disciplines (top 3)
 
@@ -23,7 +23,7 @@ Three things this skill cares about most. Everything below amplifies these three
 
 2. **Deep modules over shallow ones.** Sketch the modules to build or change, and look hard for deep modules: a lot of functionality behind a simple interface that rarely changes and can be tested in isolation. A shallow module exposes almost as much interface as it has behavior, so it earns its keep less and tends to leak its internals into everything that touches it.
 
-3. **Testable user stories plus explicit test and scope boundaries.** Write user stories concrete enough to test, and fill in the Testing Decisions and Out of Scope sections rather than leaving them blank. Without them, "is it done?" has no answer and scope creeps because no line was ever drawn.
+3. **Testable user stories plus explicit test and scope boundaries.** Write user stories concrete enough to test, give each one acceptance criteria, and fill in the Testing Decisions and Out of Scope sections rather than leaving them blank. Without them, "is it done?" has no answer and scope creeps because no line was ever drawn.
 
 ## Process
 
@@ -32,6 +32,14 @@ Skip a step when you genuinely do not need it, but do not skip the step-6 hard g
 ### 1. Gather the problem
 
 Ask the user for a long, detailed description of the problem they want to solve and any ideas they have for a solution. Listen for the problem in their own words before any solution talk. If a one-line description came in as an argument, treat it as the starting point and expand it with the user.
+
+**Check the size before going further.** As soon as the problem is clear, place it in one of three sizes and say which one, with the reason:
+
+- **Bigger than one feature.** It is several features that could each ship on their own, the scope is still fuzzy, it needs numbered FR/NFR IDs for sign-off, or whether to build it at all is still open. Stop here and offer `/analyst`. Do not interview for a PRD that is the wrong tool.
+- **One feature, several slices.** It needs more than one end-to-end change to land (for example a data change, then the screen that uses it). Carry on; the handoff sends it to `/slice-to-issues`.
+- **One slice.** One end-to-end change a developer finishes in about a session. Carry on; the handoff sends it straight to `/tdd`.
+
+Check the size again after step 4. The module sketch often shows a feature is bigger or smaller than it first looked; if it moved, say so.
 
 ### 2. Explore the codebase
 
@@ -56,24 +64,23 @@ Check with the user which modules they want tests for, and what a good test look
 1. The interview reached shared understanding. The problem, the solution, and the module sketch were each confirmed by the user (steps 3 and 4). "Looks fine, keep going" counts; silence does not.
 2. The destination is known. The project's tracker, or a file path if there is no tracker.
 
-**Second precondition (hard gate): the single-slot check.** `PRD.md` at the repo root is a
-single slot. Every initiative that falls back to a file instead of the tracker writes to that one path, so a second initiative
-destroys the first one's specification. No test can see the loss, because a specification has no
-runtime behavior to break.
+**Second precondition (hard gate): the single-slot check.** This applies only when the PRD
+goes to a file. A file path is a slot: a second initiative that writes to the same path
+destroys the first one's specification, and no test can see the loss, because a
+specification has no runtime behavior to break.
 
-Resolve your target path first. If a `docs/*/PRD.md` already exists whose `Initiative`
-field names the initiative you are writing for, THAT file is your target, and the copy at
-the usual path is not yours to touch. Otherwise your target is the usual path. Then, on
-the target you resolved:
+Your target is `docs/<initiative>/PRD.md`. Never write `PRD.md` at the repo root: older
+projects may hold one from before this rule, and it belongs to whichever initiative its
+`Initiative` field names. Then, on the target:
 
 1. Check whether the target path already exists. If it does not, write normally and ask
    nothing. A path that holds no file yet must never produce a question here.
 2. If it exists, read its `Initiative` field.
-3. If that field names the initiative you are working on, proceed as today.
+3. If that field names the initiative you are working on, update it in place.
 4. If it names a different initiative, or the field is absent, STOP and ask the user.
    Name the initiative that owns the file on disk, name the one you were about to write
-   for, and offer the alternative in the same breath: write to
-   `docs/<initiative>/PRD.md` instead and leave the existing file untouched.
+   for, and offer the alternative in the same breath: a different folder name for this
+   initiative, leaving the existing file untouched.
 5. Never overwrite on your own judgement, and never merge two initiatives into one file.
 
 An absent `Initiative` field counts as a different initiative, not as a free slot. Every
@@ -90,7 +97,7 @@ Write the PRD with the template below, then file it as a single issue on the tra
 **Do not overwrite this file for a different initiative.** A later initiative writes its own under `docs/<initiative>/PRD.md`.
 
 Keep these four lines at the top whether the PRD lands as an issue on the tracker or as
-`PRD.md`. They name the initiative that owns it.
+`docs/<initiative>/PRD.md`. They name the initiative that owns it.
 
 ## Problem Statement
 The problem that the user is facing, from the user's perspective.
@@ -100,7 +107,7 @@ The solution to the problem, from the user's perspective.
 
 ## User Stories
 
-A LONG, numbered list of user stories. Each user story should be in the format of:
+A numbered list of user stories. Each user story should be in the format of:
 
 1. As an <actor>, I want a <feature>, so that <benefit>
 
@@ -108,7 +115,18 @@ A LONG, numbered list of user stories. Each user story should be in the format o
 1. As a mobile bank customer, I want to see the balance on my accounts, so that I can make better informed decisions about my spending
 </user-story-example>
 
-This list of user stories should be extremely extensive and cover all aspects of the feature.
+Cover every behavior the feature has, and nothing beyond it. A small feature has a few stories; padding the list with stories nobody asked for widens the scope this skill exists to keep narrow. Include the unhappy paths (bad input, no permission, nothing found) that the feature must handle.
+
+## Acceptance Criteria
+
+Observable checks that prove each story works, one checkbox each, labelled with the story number. Each one describes what a user sees or what the system does, never how the code does it. They become the first tests in `/tdd`.
+
+<acceptance-example>
+- [ ] Story 1: a customer with two accounts sees both balances on the home screen.
+- [ ] Story 1: a customer with no accounts sees "No accounts yet", not an empty list.
+</acceptance-example>
+
+Every story has at least one criterion.
 
 ## Implementation Decisions
 
@@ -149,12 +167,14 @@ Any further notes about the feature.
 Before declaring the PRD done, verify:
 
 - [ ] Problem and solution are stated from the user's perspective, not as implementation.
-- [ ] User stories are extensive and each one is in the "As an <actor>, I want a <feature>, so that <benefit>" form.
+- [ ] User stories cover every behavior of the feature, unhappy paths included, and nothing beyond it. Each one is in the "As an <actor>, I want a <feature>, so that <benefit>" form.
+- [ ] Every story has at least one acceptance criterion, written as observable behavior.
+- [ ] The size was checked in step 1 and again after step 4, and the handoff matches it.
 - [ ] Implementation Decisions capture modules, interfaces, and schema/API contracts. No specific file paths or code snippets (the prototype-snippet exception aside).
 - [ ] Testing Decisions name which modules are tested and what a good test is here.
 - [ ] Out of Scope is explicit, not implied by omission.
 - [ ] The user confirmed the module sketch before the PRD was filed.
-- [ ] The PRD was filed where the user expects it (a tracker issue, or `PRD.md`).
+- [ ] The PRD was filed where the user expects it (a tracker issue, or `docs/<initiative>/PRD.md`).
 - [ ] No REQUIREMENTS.md was produced. If one was needed, the work should have gone to /analyst.
 - [ ] The header names the Initiative, the governing plan, and the dated state. The single-slot check ran before the write.
 - [ ] Plain prose: no em dashes, no marketing adjectives, no Unicode box-drawing characters in tables.
@@ -164,4 +184,4 @@ Before declaring the PRD done, verify:
 When the PRD is filed, tell the user:
 
 - Where it landed (issue URL or file path).
-- The suggested next step: slice it into tracer-bullet vertical-slice issues with `/slice-to-issues`, or implement it directly with `/tdd` if it is small enough to be a single slice.
+- The size you settled on, and the next step it gives: `/tdd` for one slice, `/slice-to-issues` for one feature with several slices. If the size grew past one feature during the interview, say so and suggest `/analyst` instead of building from this PRD.

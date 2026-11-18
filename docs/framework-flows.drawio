@@ -23,7 +23,7 @@
         <mxCell id="a3" value="SPEC.md + architecture.drawio&#10;(the how)" style="shape=document;fillColor=#ffe6cc;strokeColor=#d79b00;html=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="790" y="380" width="240" height="60" as="geometry"/></mxCell>
 
         <mxCell id="p4" value="slice-to-issues&#10;slice into tracer-bullet issues" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;html=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="1070" y="250" width="240" height="70" as="geometry"/></mxCell>
-        <mxCell id="a4" value="issues (walking skeleton first)" style="shape=document;fillColor=#ffe6cc;strokeColor=#d79b00;html=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="1070" y="380" width="240" height="60" as="geometry"/></mxCell>
+        <mxCell id="a4" value="issues (walking skeleton first on new plumbing)" style="shape=document;fillColor=#ffe6cc;strokeColor=#d79b00;html=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="1070" y="380" width="240" height="60" as="geometry"/></mxCell>
 
         <!-- plan-gate : now inline in the flow, right before execution -->
         <mxCell id="pg" value="plan-gate&#10;gate the approved plan before execution" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;whiteSpace=wrap;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1350" y="250" width="240" height="70" as="geometry"/></mxCell>
