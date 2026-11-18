@@ -6,7 +6,7 @@ description: Test-driven development with the red-green-refactor loop, using ver
 
 # Test-Driven Development
 
-<!-- Based on the Matt Pocock skills set (https://github.com/mattpocock); install the companion skills via /setup-matt-pocock-skills. -->
+<!-- Based on the Matt Pocock skills set (https://github.com/mattpocock). -->
 
 ## Philosophy
 
