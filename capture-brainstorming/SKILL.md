@@ -67,7 +67,7 @@ Before touching any archive, distill the brainstorm in the live session: the fin
 
 Two mechanisms, use both:
 
-- **Full-text search across transcripts.** Call `search_session_transcripts` with 2-4 distinctive queries drawn from the topic and the project's vocabulary (project name, a domain term, a key proper noun). `include_archived: true`. Note which sessions hit.
+- **Full-text search across transcripts.** Grep `~/.claude/projects/*/*.jsonl` for 2-4 distinctive terms drawn from the topic and the project's vocabulary (project name, a domain term, a key proper noun). Note which sessions hit.
 - **Leftover transcript folders on disk.** Run `find ~/.claude -maxdepth 3 -type d -iname "*<project_name>*"`. The dash-prefixed folders (the dash-encoded form of the project's data-dir and source-repo paths, e.g. `-Users-<username>--claude-projects-<X>`, plus worktree variants) hold the `.jsonl` session transcripts and `subagents/*.jsonl`. The canonical `<X>/` folder with CLAUDE.md is NOT a transcript source, skip it here.
 
 Collect the absolute paths of the candidate `.jsonl` files with their sizes and dates. If there are no past sessions (greenfield brainstorm that lives only in this conversation), note that and go straight to step 5 using only the current conversation.

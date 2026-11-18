@@ -10,7 +10,7 @@ Run the `todo` skill's workflow (`~/.claude/skills/todo/SKILL.md`) against the a
 - **Correct an item this session made false**, not only add new ones. An item that is wrong costs more than an item that is missing, because it sends the next session to redo finished work.
 - Run the todo skill's auto-sync (`~/.claude/skills/todo/todo-format.md`, section "Auto-sync rule") ONCE after the adds, not per item. It updates the cross-project index and the project memory's open-items hook, which is the half a save otherwise leaves stale.
 
-Edit the real `TODO.md` markdown file. Never satisfy this with the ephemeral TodoWrite tracker.
+Edit the real `TODO.md` markdown file. Never satisfy this with Claude Code's built-in task list (TodoWrite, TaskCreate).
 
 If nothing is genuinely open, write nothing and say so in the report. A save that invents an item to look thorough is worse than one that adds none.
 

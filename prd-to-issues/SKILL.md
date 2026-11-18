@@ -6,7 +6,7 @@ description: Break a plan, spec, or PRD into independently-grabbable issues on t
 
 # To Issues
 
-<!-- Based on the Matt Pocock skills set (https://github.com/mattpocock); install the companion skills via /setup-matt-pocock-skills. -->
+<!-- Based on the Matt Pocock skills set (https://github.com/mattpocock). -->
 
 Break a plan into independently-grabbable issues using vertical slices (tracer bullets).
 
