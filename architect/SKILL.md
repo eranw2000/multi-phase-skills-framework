@@ -111,10 +111,10 @@ Default to `/slice-to-issues` (Path B); scaffold an OpenSpec change (Path A) onl
 ### 6. Handoff to Developer
 
 Tell the user:
-- Which path was used (Path A: OpenSpec change name; Path B: issue tracker location).
+- Which path was used (Path A: OpenSpec change name; Path B: issue tracker location, or `docs/<initiative>/SLICES.md` when the project has no tracker).
 - Any open questions still flagged.
 - The suggested next step:
-  - Path B (default): invoke `/tdd` against the top-priority issue.
+  - Path B (default): invoke `/tdd` against the top-priority issue, or slice S1 of `SLICES.md`.
   - Path A: invoke `/opsx:apply <change-name>` to let OpenSpec walk the task list, or `/tdd` per task.
 
 ## Output checklist
@@ -126,7 +126,7 @@ Tell the user:
 - [ ] Every key decision lists alternatives considered.
 - [ ] Open questions are flagged by ID.
 - [ ] `architecture.drawio` exists next to SPEC.md (or marked N/A for pure-CLI / pure-library work with no components to diagram).
-- [ ] Path A: `openspec validate <change-name>` passes. Path B: issues created on the tracker.
+- [ ] Path A: `openspec validate <change-name>` passes. Path B: issues created on the tracker, or, with no tracker, `docs/<initiative>/SLICES.md` written by `/slice-to-issues`.
 - [ ] REQUIREMENTS.md was complete before design started (no unresolved OQs or unfilled sections); any gaps were filled by the user, not guessed.
 - [ ] The header names the Initiative, the governing plan, and the dated state. The single-slot check ran before the write.
 - [ ] User has read and confirmed SPEC.md (confirmed, not assumed) before any slicing, and reviewed the implementation artifacts.

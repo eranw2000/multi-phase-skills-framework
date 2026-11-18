@@ -2,9 +2,9 @@ Two paths. **Default to Path B (`/slice-to-issues`).** Use Path A (OpenSpec) ONL
 
 **Path B (default): direct slicing.** Slice SPEC.md into tracer-bullet vertical slices as issues on the project tracker. Right for nearly every project: lightweight, no new dependency, and the slices become assignable, closeable, PR-linkable work items. The durable design rationale already lives in the versioned `SPEC.md` and `architecture.drawio`, so the issues only need to carry the sliced work.
 
-1. Invoke `/slice-to-issues` with SPEC.md as input.
+1. Invoke `/slice-to-issues` with SPEC.md as input. A project with no tracker gets `docs/<initiative>/SLICES.md` instead of issues; that is a complete Path B.
 2. Confirm the tracer-bullet vertical slices match the module inventory in SPEC.md.
-3. Hand off to `/tdd` against the top-priority issue.
+3. Hand off to `/tdd` against the top-priority issue, or slice S1 of `SLICES.md`.
 
 **Path A (opt-in): OpenSpec.** Use only when the user explicitly requests it, or the repo's established workflow is OpenSpec and the user confirms staying on it. Its value is per-change spec deltas versioned alongside code and a living spec corpus; without that need it is ceremony.
 

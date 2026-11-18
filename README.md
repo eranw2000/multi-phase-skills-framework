@@ -13,12 +13,12 @@ The skills are designed to run in this order, but each is usable on its own.
 1. **capture-brainstorming** — turn an exploratory thinking session into a `BRAINSTORM.md` handoff log. Runs as a full capture (mines the conversation plus past session transcripts) or as a cheap checkpoint you can repeat during a long session. Surfaces deferred action items and hands them to `todo`.
 2. **analyst** — interview the user and the codebase, then write `REQUIREMENTS.md` (the problem space: WHAT and WHY, not HOW). Warm-starts from `BRAINSTORM.md` when one exists.
 3. **architect** — read `REQUIREMENTS.md`, decide the design with the user, write `SPEC.md` plus an `architecture.drawio`, then slice the work via `slice-to-issues`.
-4. **slice-to-issues** — break a plan or spec into independently-grabbable, tracer-bullet vertical slices as issues on the project tracker. First slice is always a walking skeleton.
+4. **slice-to-issues** — break a plan or spec into independently-grabbable, tracer-bullet vertical slices as issues on the project tracker (or `docs/<initiative>/SLICES.md` when there is no tracker). A coverage list shows every requirement has a slice before anything is published, and the first slice is a walking skeleton when the plumbing is new.
 5. **tdd** — implement each issue with the red-green-refactor loop, one vertical slice at a time. Hands the branch off for review and a PR per your team's process.
 
 Supporting skills used across the chain:
 
-- **spec-to-feature** — lightweight single-feature alternative to the `analyst` then `architect` pass: one interview, one PRD, filed as one issue. Based on the Matt Pocock skills set.
+- **spec-to-feature** — lightweight single-feature alternative to the `analyst` then `architect` pass: a size check, one interview, one PRD with acceptance criteria, filed as one issue. Based on the Matt Pocock skills set.
 - **grill-me** — adversarial interview to stress-test a plan, design, or doc before committing to it. Based on the grill-me skill by Matt Pocock.
 - **plan-gate** — pre-execution checkpoint on an approved plan (for example one you just approved in Claude Code's plan mode): surface every weak spot and drive each one to fixed or explicitly accepted with the user, one at a time, before any code is written. Spawns the bundled `plan-auditor` agent for the read-only audit; an optional hook fires the gate automatically the moment you leave plan mode. Use `grill-me` to stress-test an early idea; `plan-gate` is for a plan that is already approved.
 - **`/pause-after-planning`**: optional command for anyone who plans and builds on different models. Run it during a planning session and it arms a stop, so Claude finishes planning and the gate, then hands off and waits for you to switch the model instead of rolling straight into implementation. See [Model routing](#model-routing).
