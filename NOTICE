@@ -7,7 +7,8 @@ Copyright (c) 2026 Matt Pocock.
 
 Skills in this repository derived from that work (adapted, not verbatim):
 - tdd            (from his "tdd")
-- prd-to-issues  (from his "to-issues")
+- slice-to-issues (from his "to-issues")
+- spec-to-feature (from his "write-a-prd")
 - grill-me       (from his "grill-me")
 - grill-me/CONTEXT-FORMAT.md and grill-me/ADR-FORMAT.md
                  (from his "domain-modeling" skill's format references)

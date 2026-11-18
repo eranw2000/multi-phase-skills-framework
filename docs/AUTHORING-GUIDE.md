@@ -76,9 +76,9 @@ A chain of phase skills, each producing one named handoff artifact so the next p
 1. **capture-brainstorming** produces `BRAINSTORM.md` (full capture, or cheap repeatable checkpoints). Hands deferred action items to the todo skill.
 2. **analyst** produces `REQUIREMENTS.md`: the problem space (WHAT and WHY), testable FRs and measurable NFRs, each with an ID.
 3. **architect** produces `SPEC.md` plus an architecture diagram, gating on a complete REQUIREMENTS.md first and a user-confirmed SPEC.md before slicing.
-4. **prd-to-issues** breaks the spec into tracer-bullet vertical-slice issues; first slice is a walking skeleton.
+4. **slice-to-issues** breaks the spec into tracer-bullet vertical-slice issues; first slice is a walking skeleton.
 5. **tdd** implements each issue with red-green-refactor, one slice at a time.
 
-Supporting skills: **grill-me** (adversarial stress-test), **init-project** (seed a project doc), **todo** (persistent per-project TODO with a cross-project index), **write-a-prd** (lightweight single-feature alternative to analyst-then-architect), **save-context** and **close-session** (end-of-session persistence). A start-of-session briefing ships as a `/new-session` command in the companion commands pack, not as a skill here.
+Supporting skills: **grill-me** (adversarial stress-test), **init-project** (seed a project doc), **todo** (persistent per-project TODO with a cross-project index), **spec-to-feature** (lightweight single-feature alternative to analyst-then-architect), **save-context** and **close-session** (end-of-session persistence). A start-of-session briefing ships as a `/new-session` command in the companion commands pack, not as a skill here.
 
 Conventions worth reusing: stable IDs (FR-N, NFR-X-N, D-N) thread requirements through design, issues, tests, and review; vertical tracer-bullet slicing with a walking skeleton first; the brainstorm output is a handoff artifact, not memory; an open topic (a decision) is kept separate from an action item (a task handed to the todo skill), never double-tracked.

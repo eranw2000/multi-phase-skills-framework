@@ -16,7 +16,7 @@ Interview the user relentlessly about every aspect of a plan, design, or documen
 - If the user passed a path as an argument (e.g., `/grill-me REQUIREMENTS.md`, `/grill-me docs/proposal.md`, `/grill-me openspec/changes/add-auth/design.md`), read that file first. That file is the subject of the grilling.
 - If the argument is a URL, fetch it and use the content as the subject.
 - If no argument is given, the subject is whatever plan or design is in the current conversation.
-- The subject can be at any stage: a rough idea or BRAINSTORM.md before you commit to a path (write-a-prd or analyst), or a written REQUIREMENTS.md / SPEC.md before the next phase.
+- The subject can be at any stage: a rough idea or BRAINSTORM.md before you commit to a path (spec-to-feature or analyst), or a written REQUIREMENTS.md / SPEC.md before the next phase.
 
 State clearly at the start which subject you are grilling.
 
