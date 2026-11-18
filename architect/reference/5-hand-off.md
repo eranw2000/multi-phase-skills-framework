@@ -1,8 +1,8 @@
-Two paths. **Default to Path B (`/prd-to-issues`).** Use Path A (OpenSpec) ONLY when the user explicitly asks for the OpenSpec / `opsx:propose` route. If the repo already standardizes on OpenSpec, you may surface it as an option, but do not switch to it without the user opting in.
+Two paths. **Default to Path B (`/slice-to-issues`).** Use Path A (OpenSpec) ONLY when the user explicitly asks for the OpenSpec / `opsx:propose` route. If the repo already standardizes on OpenSpec, you may surface it as an option, but do not switch to it without the user opting in.
 
 **Path B (default): direct slicing.** Slice SPEC.md into tracer-bullet vertical slices as issues on the project tracker. Right for nearly every project: lightweight, no new dependency, and the slices become assignable, closeable, PR-linkable work items. The durable design rationale already lives in the versioned `SPEC.md` and `architecture.drawio`, so the issues only need to carry the sliced work.
 
-1. Invoke `/prd-to-issues` with SPEC.md as input.
+1. Invoke `/slice-to-issues` with SPEC.md as input.
 2. Confirm the tracer-bullet vertical slices match the module inventory in SPEC.md.
 3. Hand off to `/tdd` against the top-priority issue.
 

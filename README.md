@@ -12,13 +12,13 @@ The skills are designed to run in this order, but each is usable on its own.
 
 1. **capture-brainstorming** — turn an exploratory thinking session into a `BRAINSTORM.md` handoff log. Runs as a full capture (mines the conversation plus past session transcripts) or as a cheap checkpoint you can repeat during a long session. Surfaces deferred action items and hands them to `todo`.
 2. **analyst** — interview the user and the codebase, then write `REQUIREMENTS.md` (the problem space: WHAT and WHY, not HOW). Warm-starts from `BRAINSTORM.md` when one exists.
-3. **architect** — read `REQUIREMENTS.md`, decide the design with the user, write `SPEC.md` plus an `architecture.drawio`, then slice the work via `prd-to-issues`.
-4. **prd-to-issues** — break a plan or spec into independently-grabbable, tracer-bullet vertical slices as issues on the project tracker. First slice is always a walking skeleton.
+3. **architect** — read `REQUIREMENTS.md`, decide the design with the user, write `SPEC.md` plus an `architecture.drawio`, then slice the work via `slice-to-issues`.
+4. **slice-to-issues** — break a plan or spec into independently-grabbable, tracer-bullet vertical slices as issues on the project tracker. First slice is always a walking skeleton.
 5. **tdd** — implement each issue with the red-green-refactor loop, one vertical slice at a time. Hands the branch off for review and a PR per your team's process.
 
 Supporting skills used across the chain:
 
-- **write-a-prd** — lightweight single-feature alternative to the `analyst` then `architect` pass: one interview, one PRD, filed as one issue. Based on the Matt Pocock skills set.
+- **spec-to-feature** — lightweight single-feature alternative to the `analyst` then `architect` pass: one interview, one PRD, filed as one issue. Based on the Matt Pocock skills set.
 - **grill-me** — adversarial interview to stress-test a plan, design, or doc before committing to it. Based on the grill-me skill by Matt Pocock.
 - **plan-gate** — pre-execution checkpoint on an approved plan (for example one you just approved in Claude Code's plan mode): surface every weak spot and drive each one to fixed or explicitly accepted with the user, one at a time, before any code is written. Spawns the bundled `plan-auditor` agent for the read-only audit; an optional hook fires the gate automatically the moment you leave plan mode. Use `grill-me` to stress-test an early idea; `plan-gate` is for a plan that is already approved.
 - **`/pause-after-planning`**: optional command for anyone who plans and builds on different models. Run it during a planning session and it arms a stop, so Claude finishes planning and the gate, then hands off and waits for you to switch the model instead of rolling straight into implementation. See [Model routing](#model-routing).
@@ -112,7 +112,7 @@ Claude Code loads every `.md` file in `~/.claude/rules/` at the start of each se
 These skills reference a few things this framework does not include. None are required to use the core chain; they are points where the framework hands off to your own tooling.
 
 - **Review and pull-request / checkpoint step after `tdd`.** The framework deliberately does not prescribe a review or PR tool. When tests are green, `tdd` tells you to hand the branch off for review and open a PR per your team's process. Plug in whatever you use (a code-review skill, your CI, a manual review).
-- **OpenSpec (optional, `architect` Path A).** `architect` defaults to slicing straight into issues via `prd-to-issues` (Path B). It can instead scaffold an OpenSpec change if your repo already uses OpenSpec, which is a separately installed tool (`npm install -g @fission-ai/openspec`). Skip it unless your team has standardized on it.
+- **OpenSpec (optional, `architect` Path A).** `architect` defaults to slicing straight into issues via `slice-to-issues` (Path B). It can instead scaffold an OpenSpec change if your repo already uses OpenSpec, which is a separately installed tool (`npm install -g @fission-ai/openspec`). Skip it unless your team has standardized on it.
 - **draw.io tooling (optional, `architect` deliverable 2).** `architect` asks for an `architecture.drawio` next to `SPEC.md` and leaves how you produce it up to you. The `draw-diagram` skill in the [drawio-diagram-skill](https://github.com/eranw2000/drawio-diagram-skill) pack covers that part: a visual grammar to author against, plus a validator and renderer so the diagram gets looked at before it is called done. Any other draw.io workflow does the job equally well.
 - **Commands and skills from the sibling packs (optional).** A few skills mention a command that ships elsewhere: `/instruct` and `/new-session` in [claude-commands](https://github.com/eranw2000/claude-commands), `/split-claude-md` in [claude-maintenance-skills](https://github.com/eranw2000/claude-maintenance-skills), and `/pr-checkpoint` and `/release` in [claude-release-workflow](https://github.com/eranw2000/claude-release-workflow). Each mention is a pointer, not a requirement; without the other pack the step is skipped.
 - **`/improve-dev-workflow` (optional, `save-context` step 7).** At the end of a session, `save-context` (and so `close-session`) checks whether something reached you or a reviewer that a skill, hook, agent or rule should have caught. When it did, it asks once whether to improve the development workflow now, and runs `/improve-dev-workflow` from [claude-maintenance-skills](https://github.com/eranw2000/claude-maintenance-skills) on a yes. Without that pack, the answer is filed as an open action item instead.
@@ -130,7 +130,7 @@ These skills reference a few things this framework does not include. None are re
 
 ## Credits
 
-Several skills here are based on Matt Pocock's open-source skills set (https://github.com/mattpocock/skills): `tdd`, `prd-to-issues` (his `to-issues`), `write-a-prd`, and `grill-me`. To install his full upstream set and its per-repo config, run `/setup-matt-pocock-skills` from that repo. `analyst` and `architect` are original to this framework, they add the explicit requirements and design phases his set does not include. The `plan-gate` system (skill, `plan-auditor` agent, and reminder hook) is also original.
+Several skills here are based on Matt Pocock's open-source skills set (https://github.com/mattpocock/skills): `tdd`, `slice-to-issues` (his `to-issues`), `spec-to-feature` (his `write-a-prd`), and `grill-me`. To install his full upstream set and its per-repo config, run `/setup-matt-pocock-skills` from that repo. `analyst` and `architect` are original to this framework, they add the explicit requirements and design phases his set does not include. The `plan-gate` system (skill, `plan-auditor` agent, and reminder hook) is also original.
 
 ## License
 

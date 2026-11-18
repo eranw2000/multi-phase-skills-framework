@@ -1,7 +1,7 @@
 ---
 model: inherit
 name: analyst
-description: Act as a Requirements Analyst. Interview the user, explore the codebase, and produce REQUIREMENTS.md capturing the problem space (WHAT and WHY, not HOW) for handoff to the architect skill. Warm-starts from a BRAINSTORM.md (written by /capture-brainstorming) when one exists, interviewing only the open topics. Use when starting a new project or initiative, when scope is unclear, or when the user says "gather requirements", "act as analyst", "let's spec this", or asks to produce a REQUIREMENTS.md. For a small single-feature spec, prefer write-a-prd; use grill-me to stress-test a plan that already exists instead.
+description: Act as a Requirements Analyst. Interview the user, explore the codebase, and produce REQUIREMENTS.md capturing the problem space (WHAT and WHY, not HOW) for handoff to the architect skill. Warm-starts from a BRAINSTORM.md (written by /capture-brainstorming) when one exists, interviewing only the open topics. Use when starting a new project or initiative, when scope is unclear, or when the user says "gather requirements", "act as analyst", "let's spec this", or asks to produce a REQUIREMENTS.md. For a small single-feature spec, prefer spec-to-feature; use grill-me to stress-test a plan that already exists instead.
 ---
 
 # Requirements Analyst
@@ -18,7 +18,7 @@ Three things this skill cares about most. Everything below is amplification of t
 
 2. **Mirror back** (see Stance). After every non-trivial user answer, paraphrase what you heard and ask whether you got it right before moving on. Misheard requirements compound silently through every downstream phase (architect, TDD, review, verification).
 
-3. **Testable functional requirements + measurable non-functional requirements** (see template sections 4 and 5). Each FR formatted "The system MUST/SHOULD/MAY <behavior>, so that <reason>" with its own ID. Each NFR has a number or an explicit acceptance test, not adjectives (how to write one: `reference/nfr.md`). These IDs are what `prd-to-issues` maps issues to, and what a later review anchors against.
+3. **Testable functional requirements + measurable non-functional requirements** (see template sections 4 and 5). Each FR formatted "The system MUST/SHOULD/MAY <behavior>, so that <reason>" with its own ID. Each NFR has a number or an explicit acceptance test, not adjectives (how to write one: `reference/nfr.md`). These IDs are what `slice-to-issues` maps issues to, and what a later review anchors against.
 
 Failure modes these three prevent:
 
