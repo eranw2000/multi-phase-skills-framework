@@ -137,11 +137,25 @@ It reads `claude agents --json` and lists background sessions in `blocked` that 
 - **Capture anything real into the project's `TODO.md` FIRST** (via the `todo` skill), and save any drafted artifact into the project data dir so it does not die with the job.
 - Then hand over the `claude rm <id>` lines for the ones that are safe to remove, or say to press Ctrl+X twice on them in the agent view. Do not run them yourself: removing a session discards its content.
 
-### 5. Final assistant message
+### 5. Build the summary page
 
-Save-context has already reported what it saved. **Add to that report rather than repeating it:** what step 0 found running and what the user chose, what step 1 stopped and where its findings went (or "nothing was running"), what was cleaned up, and the stale-job line. Then close with one short confirmation, e.g.:
+Every close ends with one visual page. **Run the `session-summary` skill: read `~/.claude/skills/session-summary/SKILL.md` in full and follow it**, never a summary of it. That skill owns the page; this step only calls it, after the save and the cleanup, so its `saved` and `cleaned` tiles are real. Never skipped.
 
-> Context saved (CLAUDE.md + 1 memory). Added 3 open items to TODO.md (2 Active, 1 Parked). Stopped the dev server on :8002 and the background poll job. This session is wrapped up, you can close the window whenever.
+### 6. Final assistant message
+
+Save-context has already reported what it saved. **Give the summary page's absolute path on its own line first** (and its visible copy path where the project keeps one); the page holds the detail, so keep the chat lines short. **Add to that report rather than repeating it:** what step 0 found running and what the user chose, what step 1 stopped and where its findings went (or "nothing was running"), what was cleaned up, and the stale-job line. Then close with one short confirmation, e.g.:
+
+> Context saved (CLAUDE.md + 1 memory). Added 3 open items to TODO.md (2 Active, 1 Parked). Stopped the dev server on :8002 and the background poll job. This session is wrapped up (also ran close-session), you can close the window whenever.
+
+**Name the close in that line, every time.** Because this skill ran, the confirmation says "This session is wrapped up (also ran close-session)", and any "Session saved" line in the same message says "Session saved (with close-session)". A save alone, with no close, keeps the plain words, so the reader can tell at a glance whether `/close-session` still has to be run. A "STOPPED" line never means the close ran.
+
+**Every close ends its final message with this bold line, on its own, even when the save ran earlier in the session and was not repeated:**
+
+```
+## **Session saved (with close-session)**
+```
+
+It is the line the user looks for. A close whose message carries only the plain "also ran close-session" words at the bottom reads as a save alone, and the close gets run a second time.
 
 Do NOT attempt to close the Terminal window or drop any flag file.
 

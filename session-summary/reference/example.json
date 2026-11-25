@@ -1,0 +1,54 @@
+{
+  "project": "recipe-app",
+  "project_about": "an invented example: a small web app that plans weekly meals",
+  "title": "Shopping list released, the login fix started",
+  "one_line": "The shopping list is live. Next: decide whether a guest can save a list without signing in.",
+  "status": [
+    {"label": "Shipped", "value": "Shopping list, `a1b2c3d`", "tone": "good"},
+    {"label": "Running now", "value": "Nothing", "tone": "good"},
+    {"label": "Blockers", "value": "1", "tone": "bad"},
+    {"label": "Waiting on you", "value": "2 items", "tone": "warn"}
+  ],
+  "scope": [
+    {"name": "Meal planner", "state": "done"},
+    {"name": "Shopping list", "state": "now"},
+    {"name": "Guest accounts", "state": "next"},
+    {"name": "Public launch", "state": "later"}
+  ],
+  "done": [
+    {"what": "Built the shopping list: it gathers every ingredient from the week's meals into one list.", "proof": "PR #12, 14 new tests pass"},
+    {"what": "Released it and checked it on the live site.", "proof": "deploy `a1b2c3d`, list page loads with 23 items"},
+    {"what": "Started the login fix: found why a guest loses their list on refresh.", "proof": "reproduced on the live site"}
+  ],
+  "decisions": [
+    {"choice": "Group the list by shop aisle, not by recipe.", "recorded": "docs/decisions.md"},
+    {"choice": "Skip the print button for now.", "recorded": "TODO.md"}
+  ],
+  "issues": [
+    {"what": "A guest loses their shopping list when the page reloads.", "effect": "Anyone not signed in has to rebuild the list each visit. Blocks guest accounts."}
+  ],
+  "yours": [
+    "Decide: may a guest save a list without signing in?",
+    "Send the release note to the beta testers."
+  ],
+  "mine": [
+    "Finish the login fix once the guest decision is made."
+  ],
+  "next": [
+    {"title": "Decide on guest saving", "what": "Answer one question: keep a guest's list in the browser, or ask them to sign in.", "changes": "Unblocks the login fix.", "command": "cd ~/projects/recipe-app && claude", "pick": true},
+    {"title": "Send the release note", "what": "A short note to the beta testers.", "changes": "Testers start using the list this week."}
+  ],
+  "recommendation": "Decide on guest saving first: it is the only thing blocking the next step.",
+  "saved": [
+    {"where": "Project notes", "state": "updated", "detail": "Added the aisle-grouping rule."},
+    {"where": "TODO", "state": "updated", "items": ["new: the guest saving question", "done: shopping list"], "path": "~/.claude/projects/recipe-app/TODO.md"},
+    {"where": "Memory", "state": "unchanged"},
+    {"where": "Release notes", "state": "uncommitted", "detail": "Drafted, waiting for your read."}
+  ],
+  "pages": [
+    {"title": "Guest saving, the two options", "path": "~/.claude/projects/recipe-app/guest_saving_explained.html"}
+  ],
+  "cleaned": [
+    "Stopped the local dev server on port 3000."
+  ]
+}

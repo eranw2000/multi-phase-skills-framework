@@ -28,6 +28,7 @@ Supporting skills used across the chain:
 - **todo** — persistent per-project `TODO.md` with a cross-project index. Other skills hand deferred work to it.
 - **save-context** — end-of-session save into the project `CLAUDE.md` and memory.
 - **close-session** — save-context plus teardown of resources this session started.
+- **session-summary**: one visual HTML page per session (status tiles, where the session sits in the plan, a timeline of what was done, decisions, issues, who does what, next-step cards with a pick, what was saved). `close-session` runs it as its last step; it also runs on its own. Python 3.9+, no extra packages.
 
 A start-of-session briefing is available separately as the `/new-session` command in the companion commands pack; it is not bundled here.
 
