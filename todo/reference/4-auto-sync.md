@@ -1,0 +1,4 @@
+In the same turn, per `todo-format.md`:
+1. **Per-project TODO.md** — already edited in Step 3.
+2. **Cross-project index** (`~/.claude/projects/<index-dir>/TODO.md`): find the project's section or one-line entry; update it for a new Active item or a status change that moves the project between buckets. One line plus the memory link. If the project has no entry yet and the change is Active-bucket work, add a one-line entry under the right bucket.
+3. **Memory**: `find ~/.claude/projects -maxdepth 3 -path '*/memory/project_*<x>*.md'` (lowercased, fuzzy on the project name). **Search every store, never one.** A memory store follows the session's launch directory, so searching a single store misses the memories written from the others. One clear match: update its open-items / pending hook. Several topic-split files: pick the one whose topic matches the item. No match: do NOT fabricate a memory file; note "no project_*.md memory yet" in the report and skip this leg.
