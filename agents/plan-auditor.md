@@ -43,6 +43,15 @@ Categories to sweep:
 - Irreversible or risky steps: data deletion, schema changes, force pushes, production
   writes, anything hard to undo, and whether the plan guards them.
 - Verification gap: how will each change be confirmed to work? Is there a test or check?
+- A test over every X (every route, button, section set, writer, caller). For each planned
+  test whose claim says every, all or each X, and for each such test YOU recommend, the plan
+  must name three things; flag each one it leaves out. (1) Where the test reads X from: a
+  source the code under test cannot change (the route table, the rendered markup), never the
+  handlers or bindings it exercises and never a hand-typed list. (2) The entry point and the
+  instrument: the real server or page, pressing only what a person can, and a real browser
+  when the claim is about what a person can see or press, never a helper, a raw insert, the
+  rule function or a hand-made fake page. (3) The break on ONE member that proves it (an
+  unbound control, a new member, a control left disabled).
 - A proof only the OUTSIDE WORLD can give, scheduled after the point of no return. Ask two
   questions of every plan that integrates with something the repository does not run: which
   claims can only be settled by the real service, and where in the order does the plan settle

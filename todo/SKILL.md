@@ -1,7 +1,7 @@
 ---
 model: sonnet
 name: todo
-description: Persistent markdown todo manager for projects. Reads and edits the per-project TODO.md in the project data dir (~/.claude/projects/NAME/TODO.md) and keeps the cross-project index and project memory in sync. Use when the user says "todo", "/todo", "what's on the todo list", "add a todo", "mark X done", "what's open on this project", or "move X to parked/queued". This is the PERSISTENT markdown todo, NOT Claude Code's built-in ephemeral TodoWrite task tracker.
+description: Persistent markdown todo manager for projects. Reads and edits the per-project TODO.md in the project data dir (~/.claude/projects/NAME/TODO.md) and keeps the cross-project index and project memory in sync. Use when the user says "todo", "/todo", "what's on the todo list", "add a todo", "mark X done", "what's open on this project", or "move X to parked/queued". This is the PERSISTENT markdown todo, NOT Claude Code's built-in task list (TodoWrite, TaskCreate).
 argument-hint: "[list | all | add <text> [bucket] [due <date>] | done <text> | move <text> <bucket> | pin <text> | unpin | sync]"
 ---
 
@@ -9,7 +9,7 @@ argument-hint: "[list | all | add <text> [bucket] [due <date>] | done <text> | m
 
 Manage a project's open work in a `TODO.md` file that survives across sessions. Each project has one at `~/.claude/projects/<X>/TODO.md`, organized into the five state buckets. A cross-project index at `~/.claude/projects/<index-dir>/TODO.md` rolls them up, one line per project. The `<index-dir>` is the dash-encoded home path (e.g. `-Users-username` for `/Users/username`); the helper scripts derive it automatically.
 
-**This is NOT Claude Code's built-in TodoWrite tool.** TodoWrite is an ephemeral in-session task tracker that vanishes when the session ends. This skill edits real markdown files on disk. Never call TodoWrite to satisfy a `/todo` request, and never edit these files via TodoWrite.
+**This is NOT Claude Code's built-in task list (TodoWrite, TaskCreate).** This skill edits real markdown files on disk. Never use that list to satisfy a `/todo` request, and never edit these files through it.
 
 The canonical file shape, the five buckets, the link conventions, and the auto-sync rule all live in `todo-format.md` (alongside this file, at `~/.claude/skills/todo/todo-format.md`). Read it before editing any TODO.md.
 
@@ -48,10 +48,9 @@ Apply the mutation using the format in `todo-format.md`: one line per item, memo
 
 ## Step 4 — Auto-sync (after any mutating mode)
 
-In the same turn, per `todo-format.md`:
-1. **Per-project TODO.md** — already edited in Step 3.
-2. **Cross-project index** (`~/.claude/projects/<index-dir>/TODO.md`): find the project's section or one-line entry; update it for a new Active item or a status change that moves the project between buckets. One line plus the memory link. If the project has no entry yet and the change is Active-bucket work, add a one-line entry under the right bucket.
-3. **Memory**: `find ~/.claude/projects -maxdepth 3 -path '*/memory/project_*<x>*.md'` (lowercased, fuzzy on the project name). **Search every store, never one.** A memory store follows the session's launch directory, so searching a single store misses the memories written from the others. One clear match: update its open-items / pending hook. Several topic-split files: pick the one whose topic matches the item. No match: do NOT fabricate a memory file; note "no project_*.md memory yet" in the report and skip this leg.
+In the same turn, bring the cross-project index and the project memory in step with the edit from Step 3.
+
+**Read `~/.claude/skills/todo/reference/4-auto-sync.md` now, in full, and follow it. It is this step's full text; the line above is only a summary and is not enough to act on.**
 
 ## Step 5 — Report
 
@@ -59,7 +58,7 @@ State tightly what changed across the three artifacts: the per-project edit, the
 
 ## Guardrails
 
-- Persistent markdown todo, not TodoWrite. Never conflate the two.
+- Persistent markdown todo, not Claude Code's built-in task list (TodoWrite, TaskCreate). Never conflate the two.
 - One line per item plus a memory pointer. Never copy `CLAUDE.md` or memory detail into the todo line.
 - Strike, don't delete, on first completion — keep one session of history.
 - Quote all paths (some project dirs have spaces in their names).
