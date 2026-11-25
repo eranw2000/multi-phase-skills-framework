@@ -18,29 +18,30 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import build_summary_page as b  # noqa: E402
 
+# Invented from scratch for these tests: no real project, person, commit or task id.
 GOOD = {
     "project": "demo_project",
-    "project_about": "an invented project for tests",
-    "title": "Wave 3 shipped",
-    "one_line": "Wave 3 is live. Next is the run with filings.",
-    "done": [{"what": "Released wave 3", "proof": "commit `af97640`"}],
-    "issues": [{"what": "Events land on the wrong page", "effect": "The lawyer sees them under the cover"}],
-    "yours": ["Answer the two note-number questions"],
-    "mine": ["Diagnose where the new events land"],
+    "project_about": "an invented garden planner app",
+    "title": "Seed list export shipped",
+    "one_line": "The seed list export is live. Next is the frost-date reminder.",
+    "done": [{"what": "Released the seed list export", "proof": "tag `v0.2.0`"}],
+    "issues": [{"what": "Reminders use the wrong time zone", "effect": "A reminder for Lisbon arrives an hour late"}],
+    "yours": ["Choose the reminder wording"],
+    "mine": ["Fix the time zone in the reminder job"],
     "next": [
-        {"title": "Ask for a new run", "what": "Run it with filings", "changes": "Tests fix 3",
-         "command": "cd ~/x && claude", "pick": True},
-        {"title": "Answer the questions first", "what": "Two short calls"},
+        {"title": "Build the frost-date reminder", "what": "One e-mail per frost date",
+         "changes": "Closes the reminder item", "command": "cd ~/x && claude", "pick": True},
+        {"title": "Pick the wording first", "what": "Two short options"},
     ],
-    "recommendation": "Ask for the run first.",
+    "recommendation": "Build the reminder first.",
     "saved": [{"where": "TODO", "path": "/tmp/TODO.md"}],
-    "cleaned": ["Stopped the dev server on :8002"],
-    "status": [{"label": "Shipped", "value": "af97640", "tone": "good"},
-               {"label": "Waiting on you", "value": "2 items", "tone": "warn"}],
-    "scope": [{"name": "Run 5", "state": "done"}, {"name": "Wave 3", "state": "now"},
-              {"name": "Run with filings", "state": "next"}],
-    "decisions": [{"choice": "Skip the deck slides", "recorded": "CLAUDE_DECISIONS.md"}],
-    "pages": [{"title": "Hook page", "path": "/tmp/a b.html"}],
+    "cleaned": ["Stopped the dev server on :5000"],
+    "status": [{"label": "Shipped", "value": "v0.2.0", "tone": "good"},
+               {"label": "Waiting on you", "value": "1 item", "tone": "warn"}],
+    "scope": [{"name": "Seed list", "state": "done"}, {"name": "Export", "state": "now"},
+              {"name": "Frost reminder", "state": "next"}],
+    "decisions": [{"choice": "Leave out the PDF export", "recorded": "DECISIONS.md"}],
+    "pages": [{"title": "Export preview", "path": "/tmp/a b.html"}],
 }
 NOW = dt.datetime(2026, 11, 25, 7, 33, tzinfo=dt.timezone.utc)
 
@@ -83,7 +84,7 @@ class RenderTests(unittest.TestCase):
         page = b.render(GOOD, NOW)
         self.assertEqual(page.count("My pick</span>"), 1)
         self.assertEqual(page.count('class="card pick"'), 1)
-        self.assertLess(page.index("My pick"), page.index("Answer the questions first"))
+        self.assertLess(page.index("My pick"), page.index("Pick the wording first"))
 
     def test_text_is_escaped_and_backticks_become_code(self):
         d = copy.deepcopy(GOOD)
@@ -95,9 +96,9 @@ class RenderTests(unittest.TestCase):
 
     def test_hebrew_blocks_carry_dir_auto(self):
         d = copy.deepcopy(GOOD)
-        d["one_line"] = "ישרוטל רץ שוב"
+        d["one_line"] = "\u05e9\u05dc\u05d5\u05dd \u05e2\u05d5\u05dc\u05dd"  # "hello world"
         page = b.render(d, NOW)
-        self.assertIn('<div class="lead" dir="auto">ישרוטל רץ שוב</div>', page)
+        self.assertIn('<div class="lead" dir="auto">\u05e9\u05dc\u05d5\u05dd \u05e2\u05d5\u05dc\u05dd</div>', page)
 
     def test_unknown_zone_falls_back_to_this_computers_zone(self):
         old = (b.LOCAL_ZONE, b.LOCAL_LABEL)
@@ -133,8 +134,8 @@ class VisualTests(unittest.TestCase):
     def test_scope_marks_this_session(self):
         page = b.render(GOOD, NOW)
         self.assertEqual(page.count('class="step s-now"'), 1)
-        self.assertIn('<small>this session</small>Wave 3', page)
-        self.assertIn('<small>done</small>Run 5', page)
+        self.assertIn('<small>this session</small>Export', page)
+        self.assertIn('<small>done</small>Seed list', page)
 
     def test_saved_state_becomes_coloured_chip(self):
         d = copy.deepcopy(GOOD)
@@ -147,11 +148,11 @@ class VisualTests(unittest.TestCase):
 
     def test_decision_shows_where_recorded(self):
         page = b.render(GOOD, NOW)
-        self.assertIn("Skip the deck slides<span class=\"proof\">Recorded in CLAUDE_DECISIONS.md</span>", page)
+        self.assertIn("Leave out the PDF export<span class=\"proof\">Recorded in DECISIONS.md</span>", page)
 
     def test_pages_are_clickable_file_links(self):
         page = b.render(GOOD, NOW)
-        self.assertIn('<a href="file:///tmp/a%20b.html">Hook page</a>', page)
+        self.assertIn('<a href="file:///tmp/a%20b.html">Export preview</a>', page)
 
     def test_example_json_renders(self):
         with open(os.path.join(HERE, "reference", "example.json"), encoding="utf-8") as f:
@@ -213,7 +214,7 @@ class CliTests(unittest.TestCase):
             path = out.getvalue().strip()
             self.assertTrue(os.path.basename(path).startswith("session_summary_"))
             with open(path, encoding="utf-8") as f:
-                self.assertIn("Wave 3 shipped", f.read())
+                self.assertIn("Seed list export shipped", f.read())
 
     def test_bad_json_exits_2_and_writes_nothing(self):
         with tempfile.TemporaryDirectory() as td:
